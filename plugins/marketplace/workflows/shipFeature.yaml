@@ -1,0 +1,65 @@
+# Feature delivery — the flagship MVP1 workflow.
+# UserStory → code → unit tests → review → CI/build → audit.
+# One M-tier HITL checkpoint (build_and_test before prod-equivalent).
+
+id: shipFeature
+version: 1
+tier: MVP1
+description: |
+  Ships a feature end-to-end across engineering + quality + platform + marketplace.
+  When the product/architecture/security/release-operate plugins are admitted at
+  P1, this workflow gains additional states (PRD draft, ADR review, security scan,
+  staged release) without changing the MVP1 path.
+
+inputs:
+  - {name: capability_id, type: string, required: true}
+
+states:
+  - id: implement
+    plugin: engineering
+    skill: propose-pr
+    gate: {require: [UserStory]}
+    writes: .agents/state/prs/${capability_id}/engineering/
+
+  - id: test_author
+    plugin: quality
+    skill: write-unit-test
+    gate: {require: [PullRequest]}
+    writes: .agents/state/tests/${capability_id}/quality/
+
+  - id: test_run
+    plugin: platform
+    skill: run-tests
+    gate: {require: [TestSuite]}
+    writes: .agents/state/runs/${capability_id}/platform/test-run.json
+
+  - id: review
+    plugin: engineering
+    skill: review-diff
+    gate: {require: [PullRequest, TestSuite, TestRun], on_state: proposed}
+    writes: .agents/state/reviews/${capability_id}/engineering/
+
+  - id: build_and_test
+    plugin: platform
+    skill: run-pipeline
+    gate: {require: [ReviewVerdict], verdict: approve}
+    writes: .agents/state/runs/${capability_id}/platform/run.json
+
+  - id: audit
+    plugin: marketplace
+    skill: query-audit
+    gate: {require: [PipelineRun]}
+
+hitl_checkpoints:
+  - state: build_and_test
+    checkpoint_id: 1
+    tier: M
+    decider: rbac/release-managers
+    sla_hours: 24
+
+compensations:
+  - state: build_and_test
+    on_failure: rollback
+
+fanout_budget: 4
+parallel_writes: false

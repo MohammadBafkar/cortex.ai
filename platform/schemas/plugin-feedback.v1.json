@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/plugin-feedback.v1.json",
+  "title": "PluginFeedback",
+  "description": "Aggregated weekly feedback per plugin, derived from passive symptom detection. See GOVERNANCE.md + ROADMAP.md",
+  "type": "object",
+  "required": ["schema", "schema_version", "plugin", "window", "symptoms", "generated_at"],
+  "properties": {
+    "schema": {"type": "string", "const": "PluginFeedback"},
+    "schema_version": {"type": "string", "const": "1"},
+    "plugin": {"type": "string"},
+    "plugin_version": {"type": "string"},
+    "window": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "string", "format": "date-time"},
+        "end":   {"type": "string", "format": "date-time"}
+      }
+    },
+    "symptoms": {
+      "type": "object",
+      "description": "Counts per symptom category over the window.",
+      "properties": {
+        "rerouted_invocations":        {"type": "integer", "minimum": 0},
+        "hitl_overrides":              {"type": "integer", "minimum": 0},
+        "prompt_injection_downgrades": {"type": "integer", "minimum": 0},
+        "re_engagement_triggers":      {"type": "integer", "minimum": 0},
+        "conformance_regressions":     {"type": "integer", "minimum": 0},
+        "token_budget_warnings":       {"type": "integer", "minimum": 0},
+        "token_budget_blocks":         {"type": "integer", "minimum": 0},
+        "pep_blocks":                  {"type": "integer", "minimum": 0},
+        "nested_dispatch_attempts":    {"type": "integer", "minimum": 0},
+        "hook_timeouts":               {"type": "integer", "minimum": 0},
+        "perf_budget_overruns":        {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "themes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Human-summarized themes when an LLM-as-judge pass is enabled (P1 deliverable)."
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind":      {"enum": ["fixture_update", "skill_revision", "permission_review", "deprecation_consideration", "escalate_to_owner"]},
+          "owner":     {"type": "string"},
+          "severity":  {"enum": ["info", "minor", "major", "blocking"]},
+          "rationale": {"type": "string"}
+        }
+      }
+    },
+    "generated_at": {"type": "string", "format": "date-time"},
+    "signature":    {"type": "string"}
+  }
+}

@@ -1,0 +1,58 @@
+# Capability sunset — STUB. Requires content + product + security (P1).
+
+id: sunsetCapability
+version: 1
+tier: P1
+status: stub
+description: |
+  Deprecation proposal → user comms → migration path → cutover → cleanup.
+  The cutover is an M-tier HITL checkpoint even when usage is zero.
+required_plugins:
+  - product
+  - content
+  - engineering
+  - security
+
+inputs:
+  - {name: capability_id, type: string, required: true}
+
+states:
+  - id: deprecation_proposal
+    plugin: product
+    skill: propose-deprecation
+    writes: .agents/state/deprecations/${capability_id}/product/
+
+  - id: user_comms
+    plugin: content
+    skill: deprecation-notice
+    gate: {require: [DeprecationProposal]}
+    writes: .agents/state/deprecations/${capability_id}/content/
+
+  - id: migration_path
+    plugin: engineering
+    skill: propose-migration
+    gate: {require: [DeprecationProposal]}
+    parallel_with: [user_comms]
+    writes: .agents/state/prs/sunset-${capability_id}/engineering/
+
+  - id: cutover
+    plugin: content
+    skill: capability-sunset
+    gate: {require: [DeprecationProposal, MigrationPath], state: announced}
+    writes: .agents/state/deprecations/${capability_id}/content/cutover.json
+
+  - id: privacy_retention
+    plugin: security
+    skill: data-retention-review
+    gate: {require: [Cutover]}
+    writes: .agents/state/deprecations/${capability_id}/security/
+
+hitl_checkpoints:
+  - state: cutover
+    checkpoint_id: 10
+    tier: M
+    decider: rbac/product-owners ∩ rbac/sunset-owners
+    sla_hours: 48
+
+fanout_budget: 4
+parallel_writes: false

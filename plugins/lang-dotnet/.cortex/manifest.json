@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "lang-dotnet",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "C#/.NET language skillset. Specializes generic capability skills (quality.write-unit-test, engineering.propose-modernization) for .NET idioms — xunit, csproj/MSBuild modernization, nullable references.",
+  "bundle_contracts_touched": ["lang-dotnet"],
+  "capability_interfaces_implemented": [
+    {"id": "writeXunitTest",             "version": "1", "schema_in": "PullRequest@v1", "schema_out": "TestSuite@v1"},
+    {"id": "auditCsprojModernization",   "version": "1", "schema_in": "PullRequest@v1", "schema_out": "ModernizationReport@v1"},
+    {"id": "proposeNullableReferences",  "version": "1", "schema_in": "PullRequest@v1", "schema_out": "NullabilityProposal@v1"}
+  ],
+  "artifacts_authored": ["TestSuite", "ModernizationReport", "NullabilityProposal"],
+  "artifacts_consumed": ["PullRequest", "UserStory"],
+  "surfaces": {
+    "skills": ["write-xunit-test", "audit-csproj-modernization", "propose-nullable-references"],
+    "subagents": ["xunit-author", "csproj-auditor"],
+    "slash_commands": ["/xunit", "/csproj-audit", "/nullable"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/langs/lang-dotnet/<artifact-id>/"
+  ],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": ["methodology.tdd", "methodology.verify", "methodology.read-code", "methodology.risk-assess"],
+  "permissions_required": [
+    {"scope": "fs:write:tests",   "risk_tier": "low", "approval_policy": "auto"},
+    {"scope": "fs:read",          "risk_tier": "low", "approval_policy": "auto"},
+    {"scope": "test-runner:exec", "risk_tier": "low", "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["internal"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

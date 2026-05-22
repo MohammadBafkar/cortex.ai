@@ -1,0 +1,67 @@
+# Incident response — STUB. Requires release-operate + content plugins (P1).
+# Parent workflow executor refuses to dispatch until both are admitted.
+
+id: respondToIncident
+version: 1
+tier: P1
+status: stub
+description: |
+  Detect → triage → mitigate → resolve → postmortem → action items. The mitigate
+  state is an M-tier HITL checkpoint (production rollback / hotfix).
+required_plugins:
+  - release-operate
+  - content
+
+inputs:
+  - {name: alert_id, type: string, required: true}
+
+states:
+  - id: detect
+    plugin: release-operate
+    skill: detect
+    writes: .agents/state/incidents/${alert_id}/release-operate/
+
+  - id: triage
+    plugin: release-operate
+    skill: triage
+    gate: {require: [IncidentRecord]}
+    writes: .agents/state/incidents/${alert_id}/release-operate/triage.json
+
+  - id: mitigate
+    plugin: release-operate
+    skill: mitigate
+    gate: {require: [IncidentRecord], state: triaged}
+    writes: .agents/state/incidents/${alert_id}/release-operate/mitigate.json
+
+  - id: comms
+    plugin: content
+    skill: status-update
+    parallel_with: [mitigate]
+    writes: .agents/state/incidents/${alert_id}/content/
+
+  - id: resolve
+    plugin: release-operate
+    skill: resolve
+    gate: {require: [IncidentRecord], state: mitigated}
+    writes: .agents/state/incidents/${alert_id}/release-operate/resolve.json
+
+  - id: postmortem
+    plugin: release-operate
+    skill: postmortem
+    gate: {require: [IncidentRecord], state: resolved}
+    writes: .agents/state/incidents/${alert_id}/release-operate/postmortem.json
+
+hitl_checkpoints:
+  - state: mitigate
+    checkpoint_id: 2
+    tier: M
+    decider: rbac/incident-commanders
+    sla_hours: 0.17   # 10 minutes
+  - state: comms
+    checkpoint_id: 4
+    tier: C
+    decider: rbac/comms-leads ∩ rbac/legal
+    sla_hours: 2
+
+fanout_budget: 4
+parallel_writes: false

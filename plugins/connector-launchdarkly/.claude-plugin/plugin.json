@@ -1,0 +1,20 @@
+{
+  "name": "connector-launchdarkly",
+  "displayName": "cortex.ai \u2014 Connector: LaunchDarkly",
+  "version": "0.1.0",
+  "description": "Connector wrapping LaunchDarkly's MCP server. Exposes feature-flag + experiment read/write. Used by release-operate.release (staged rollouts) + data.run-experiment.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "connector",
+    "launchdarkly",
+    "feature-flags",
+    "experimentation",
+    "mcp"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

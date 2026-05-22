@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "connector-statuspage",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "Atlassian Statuspage MCP connector. No Capability Interfaces; exposes typed tools for incident lifecycle, component status, and customer comms drafting. Publication is HITL-checkpointed.",
+  "bundle_contracts_touched": [],
+  "capability_interfaces_implemented": [],
+  "artifacts_authored": [],
+  "artifacts_consumed": [],
+  "surfaces": {
+    "skills": [],
+    "subagents": [],
+    "slash_commands": [],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": [],
+  "permissions_required": [
+    {"scope": "statuspage:read",            "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "statuspage:incident:draft",  "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "statuspage:incident:publish","risk_tier": "high",   "approval_policy": "checkpoint"},
+    {"scope": "statuspage:component:write", "risk_tier": "medium", "approval_policy": "checkpoint"}
+  ],
+  "data_classes_handled": ["public", "internal"],
+  "risk_tier": "high",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:approval, major:approval",
+  "mcp_servers_always_load": [],
+  "packaging_exception": {
+    "reason": "Connector plugin — exposes external MCP tools, no Capability Interfaces. Per CONNECTORS.md.",
+    "produces_authoritative_artifacts": false
+  }
+}

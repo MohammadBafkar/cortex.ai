@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "connector-pagerduty",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "PagerDuty MCP connector. No Capability Interfaces; exposes typed tools for incidents, escalation policies, on-call lookup, and event ingestion.",
+  "bundle_contracts_touched": [],
+  "capability_interfaces_implemented": [],
+  "artifacts_authored": [],
+  "artifacts_consumed": [],
+  "surfaces": {
+    "skills": [],
+    "subagents": [],
+    "slash_commands": [],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": [],
+  "permissions_required": [
+    {"scope": "pagerduty:incident:read",   "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "pagerduty:oncall:read",     "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "pagerduty:incident:create", "risk_tier": "medium", "approval_policy": "auto"},
+    {"scope": "pagerduty:incident:resolve","risk_tier": "medium", "approval_policy": "auto"},
+    {"scope": "pagerduty:policy:write",    "risk_tier": "high",   "approval_policy": "checkpoint"}
+  ],
+  "data_classes_handled": ["internal", "confidential"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": [],
+  "packaging_exception": {
+    "reason": "Connector plugin — exposes external MCP tools, no Capability Interfaces. Per CONNECTORS.md.",
+    "produces_authoritative_artifacts": false
+  }
+}

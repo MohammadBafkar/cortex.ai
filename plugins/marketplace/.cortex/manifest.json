@@ -1,0 +1,114 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "marketplace",
+  "version": "0.2.0",
+  "publisher": "internal-devtools",
+  "description": "Marketplace control plane for Cortex V1: routing, conformance, audit, install, and workflow entrypoints.",
+  "bundle_contracts_touched": [
+    "marketplace-routing",
+    "plugin-conformance",
+    "audit"
+  ],
+  "capability_interfaces_implemented": [
+    {
+      "id": "routePrompt",
+      "version": "1",
+      "schema_in": "UserPrompt@v1",
+      "schema_out": "RoutePlan@v1"
+    },
+    {
+      "id": "runConformance",
+      "version": "1",
+      "schema_in": "PluginPackage@v1",
+      "schema_out": "ConformanceVerdict@v1"
+    },
+    {
+      "id": "defineWorkflow",
+      "version": "1",
+      "schema_in": "WorkflowSpec@v1",
+      "schema_out": "WorkflowTemplate@v1"
+    },
+    {
+      "id": "queryAuditLog",
+      "version": "1",
+      "schema_in": "AuditQuery@v1",
+      "schema_out": "AuditQueryResult@v1"
+    },
+    {
+      "id": "mergeReview",
+      "version": "1",
+      "schema_in": "ReviewVerdict@v1[]",
+      "schema_out": "ReviewVerdict@v1"
+    }
+  ],
+  "artifacts_authored": [
+    "RoutePlan",
+    "ConformanceVerdict",
+    "WorkflowTemplate",
+    "AuditQueryResult",
+    "ReviewVerdict"
+  ],
+  "artifacts_consumed": [
+    "UserPrompt",
+    "PluginPackage",
+    "TelemetryEvent",
+    "ReviewVerdict",
+    "WorkflowSpec"
+  ],
+  "surfaces": {
+    "skills": [
+      "route",
+      "run-conformance",
+      "query-audit",
+      "define-workflow",
+      "merge-review"
+    ],
+    "subagents": [
+      "router",
+      "conformance-tester",
+      "audit-officer"
+    ],
+    "slash_commands": [
+      "/implement",
+      "/review",
+      "/audit",
+      "/conformance",
+      "/install-plugin",
+      "/plugin-feedback",
+      "/approve"
+    ],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/feedback/",
+    ".agents/state/workflows/<run-id>/",
+    ".agents/state/conformance/"
+  ],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": [
+    "methodology.verify",
+    "methodology.plan-work"
+  ],
+  "permissions_required": [
+    {
+      "scope": "audit:read",
+      "risk_tier": "low",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "marketplace:admit",
+      "risk_tier": "high",
+      "approval_policy": "hitl"
+    }
+  ],
+  "data_classes_handled": [
+    "internal"
+  ],
+  "risk_tier": "high",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {
+    "notice_period_days": 90
+  },
+  "update_strategy": "patch:auto, minor:approval, major:approval",
+  "mcp_servers_always_load": []
+}

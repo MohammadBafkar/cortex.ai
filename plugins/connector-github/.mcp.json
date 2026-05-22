@@ -1,0 +1,13 @@
+{
+  "$comment": "MCP server reference for the GitHub connector. Wraps the official github/github-mcp-server. Capability plugins (engineering, release-operate) call the exposed typed tools (create_pull_request, list_issues, get_branch, etc.) by name from their skill bodies.",
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@github/github-mcp-server"],
+      "env": {
+        "GITHUB_TOKEN": "${secret:github-token}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

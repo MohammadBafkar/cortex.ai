@@ -1,0 +1,12 @@
+{
+  "name": "connector-pagerduty",
+  "displayName": "cortex.ai — Connector: PagerDuty",
+  "version": "0.1.0",
+  "description": "Connector plugin wrapping PagerDuty's MCP server. Exposes typed tools for incidents, escalation policies, on-call lookup, and event ingestion. Used by release-operate for paging on canary regressions and SLO breach.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["connector", "pagerduty", "oncall", "incident", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

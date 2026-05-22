@@ -1,0 +1,58 @@
+# Perf regression — STUB. Requires release-operate + quality (full, P1).
+
+id: perfRegression
+version: 1
+tier: P1
+status: stub
+description: |
+  Detect a perf regression in production → reproduce locally → analyze →
+  implement a fix → verify against baseline → release.
+required_plugins:
+  - release-operate
+  - quality
+  - engineering
+  - platform
+
+inputs:
+  - {name: regression_id, type: string, required: true}
+
+states:
+  - id: detect_regression
+    plugin: release-operate
+    skill: detect-regression
+    writes: .agents/state/runs/perf-${regression_id}/release-operate/
+
+  - id: reproduce_locally
+    plugin: quality
+    skill: reproduce-perf-issue
+    gate: {require: [PerfRegression]}
+    writes: .agents/state/runs/perf-${regression_id}/quality/
+
+  - id: analyze
+    plugin: quality
+    skill: analyze-perf
+    gate: {require: [PerfRun]}
+    writes: .agents/state/runs/perf-${regression_id}/quality/analysis.json
+
+  - id: implement_fix
+    plugin: engineering
+    skill: propose-pr
+    gate: {require: [PerfAnalysis]}
+    writes: .agents/state/prs/perf-${regression_id}/engineering/
+
+  - id: verify_baseline
+    plugin: quality
+    skill: benchmark
+    gate: {require: [PullRequest]}
+    writes: .agents/state/runs/perf-${regression_id}/quality/benchmark.json
+
+  - id: build
+    plugin: platform
+    skill: run-pipeline
+    gate: {require: [BenchmarkResult]}
+    writes: .agents/state/runs/perf-${regression_id}/platform/run.json
+
+hitl_checkpoints: []
+
+fanout_budget: 4
+parallel_writes: false

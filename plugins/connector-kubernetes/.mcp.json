@@ -1,0 +1,13 @@
+{
+  "$comment": "MCP server reference for the Kubernetes connector. Wraps a kubectl-bridge MCP server. The KUBECONFIG path is bound at install time; namespace-scoped operations are honored by the underlying RBAC of the bound credential. Cluster-wide deletes are gated behind checkpoint 13 (Chaos experiment) — capability plugins must obtain HITL approval before invoking them.",
+  "mcpServers": {
+    "kubernetes": {
+      "command": "npx",
+      "args": ["-y", "kubernetes-mcp-server"],
+      "env": {
+        "KUBECONFIG": "${secret:kubeconfig-path}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

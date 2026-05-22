@@ -1,0 +1,68 @@
+# Bug triage — report → reproduce → fix → regression test → CI.
+# MVP1 path; P1 adds methodology.debug (systematic debugging) and a HITL severity step.
+
+id: bugTriage
+version: 1
+tier: MVP1
+description: |
+  Triage a bug report into a fix that includes a regression test. The workflow
+  ensures a failing test exists before the fix lands, and that test stays green
+  after the fix.
+
+inputs:
+  - {name: bug_id, type: string, required: true}
+
+states:
+  - id: write_regression_test
+    plugin: quality
+    skill: write-unit-test
+    gate: {require: []}        # bug report is the input; the test must reproduce the bug
+    writes: .agents/state/tests/bug-${bug_id}/quality/
+
+  - id: confirm_test_fails
+    plugin: platform
+    skill: run-tests
+    gate: {require: [TestSuite]}
+    writes: .agents/state/runs/bug-${bug_id}/platform/test-run.json
+    # The parent workflow executor checks that this state's TestRun has cases_failed > 0;
+    # if every test passes, the regression test does not actually reproduce the
+    # bug and the workflow loops back to write_regression_test (bounded 5×).
+
+  - id: implement_fix
+    plugin: engineering
+    skill: propose-pr
+    gate: {require: [TestRun]}
+    writes: .agents/state/prs/bug-${bug_id}/engineering/
+
+  - id: confirm_test_passes
+    plugin: platform
+    skill: run-tests
+    gate: {require: [PullRequest, TestSuite]}
+    writes: .agents/state/runs/bug-${bug_id}/platform/test-run.json
+
+  - id: review
+    plugin: engineering
+    skill: review-diff
+    gate: {require: [PullRequest, TestRun]}
+    writes: .agents/state/reviews/bug-${bug_id}/engineering/
+
+  - id: build
+    plugin: platform
+    skill: run-pipeline
+    gate: {require: [ReviewVerdict], verdict: approve}
+    writes: .agents/state/runs/bug-${bug_id}/platform/run.json
+
+hitl_checkpoints:
+  - state: build
+    checkpoint_id: 1
+    tier: M
+    decider: rbac/release-managers
+    sla_hours: 24
+
+compensations:
+  - state: confirm_test_fails
+    on_failure: loop_back_to_write_regression_test
+    max_iterations: 5
+
+fanout_budget: 4
+parallel_writes: false

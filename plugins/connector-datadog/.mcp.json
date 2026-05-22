@@ -1,0 +1,17 @@
+{
+  "$comment": "MCP server reference for the connector-datadog connector. Capability plugins call the exposed typed tools by name from their skill bodies.",
+  "mcpServers": {
+    "datadog": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@datadog/datadog-mcp-server"
+      ],
+      "env": {
+        "DD_API_KEY": "${secret:datadog-api-key}",
+        "DD_APP_KEY": "${secret:datadog-app-key}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

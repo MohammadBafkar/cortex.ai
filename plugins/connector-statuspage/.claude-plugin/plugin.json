@@ -1,0 +1,12 @@
+{
+  "name": "connector-statuspage",
+  "displayName": "cortex.ai — Connector: Statuspage",
+  "version": "0.1.0",
+  "description": "Connector plugin wrapping Atlassian Statuspage's MCP server. Exposes typed tools for incident lifecycle, component status, and customer comms drafting. Used by release-operate and content for public-facing comms during incidents.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["connector", "statuspage", "atlassian", "incident-comms", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

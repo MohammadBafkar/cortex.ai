@@ -1,0 +1,16 @@
+{
+  "$comment": "MCP server reference for the connector-snyk connector. Capability plugins call the exposed typed tools by name from their skill bodies.",
+  "mcpServers": {
+    "snyk": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@snyk/snyk-mcp-server"
+      ],
+      "env": {
+        "SNYK_TOKEN": "${secret:snyk-token}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

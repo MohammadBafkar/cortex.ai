@@ -1,0 +1,13 @@
+{
+  "$comment": "Initial perf baseline derived from SPEC.md Conformance check-perf fails if any plugin hook script exceeds 1.5× the target p95. Update via `conformance check-perf --refresh-baseline` once Phase 2 telemetry is captured against a representative MVP1 workload.",
+  "version": 1,
+  "session_start_warm_p95_ms": 2000,
+  "session_start_cold_p95_ms": 8000,
+  "slash_command_inline_skill_p95_ms": 4000,
+  "subagent_dispatch_overhead_p95_ms": 5000,
+  "pretooluse_shell_p95_ms": 80,
+  "pretooluse_node_p95_ms": 400,
+  "conformance_gate_p95_s": 30,
+  "review_fanout_4_p95_s": 90,
+  "release_end_to_end_p95_s": 240
+}

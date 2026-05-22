@@ -1,0 +1,12 @@
+{
+  "name": "connector-terraform",
+  "displayName": "cortex.ai — Connector: Terraform",
+  "version": "0.1.0",
+  "description": "Connector plugin wrapping HashiCorp Terraform's MCP server. Exposes typed tools for plan, apply, state inspection, workspace ops, and registry search. Used by platform, architecture, and release-operate for IaC change proposals.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["connector", "terraform", "hashicorp", "iac", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

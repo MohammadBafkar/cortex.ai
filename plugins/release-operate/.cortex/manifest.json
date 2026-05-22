@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "release-operate",
+  "version": "1.0.0",
+  "publisher": "internal-devtools",
+  "description": "Release management, observability, incident response, FinOps. Emits DORA metrics.",
+  "bundle_contracts_touched": ["release", "observability", "incident", "finops"],
+  "capability_interfaces_implemented": [
+    {"id": "release",         "version": "1", "schema_in": "BuildArtifact@v1",        "schema_out": "ReleaseRecord@v1"},
+    {"id": "rollback",        "version": "1", "schema_in": "ReleaseRecord@v1",        "schema_out": "RollbackRecord@v1"},
+    {"id": "observe",         "version": "1", "schema_in": "EnvironmentRecord@v1",    "schema_out": ["SLO@v1[]", "Alert@v1[]"]},
+    {"id": "triageIncident",  "version": "1", "schema_in": "Alert@v1",                "schema_out": "IncidentRecord@v1"},
+    {"id": "mitigateIncident","version": "1", "schema_in": "IncidentRecord@v1",       "schema_out": "IncidentRecord@v1"},
+    {"id": "postmortem",      "version": "1", "schema_in": "IncidentRecord@v1",       "schema_out": "Postmortem@v1"},
+    {"id": "trackFinOps",     "version": "1", "schema_in": "ReleaseRecord@v1",        "schema_out": "FinOpsReport@v1"},
+    {"id": "emitDORA",        "version": "1", "schema_in": "ReleaseRecord@v1[]",      "schema_out": "DORAMetricsReport@v1"}
+  ],
+  "artifacts_authored": ["ReleaseRecord", "RolloutPlan", "RollbackRecord", "SLO", "Alert", "Dashboard", "IncidentRecord", "Postmortem", "FinOpsReport", "DORAMetricsReport"],
+  "artifacts_consumed": ["BuildArtifact", "EnvironmentRecord", "SecurityFinding", "AdoptionReport"],
+  "surfaces": {
+    "skills": ["release", "observe", "triage-incident", "postmortem", "track-finops", "emit-dora"],
+    "subagents": ["release-manager", "sre-observer", "incident-commander", "finops-officer"],
+    "slash_commands": ["/release", "/rollback", "/observe", "/incident-from-alert", "/postmortem", "/finops", "/dora"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/releases/<id>/release-operate/",
+    ".agents/state/incidents/<id>/release-operate/",
+    ".agents/state/postmortems/<id>/release-operate/",
+    ".agents/state/alerts/<id>/release-operate/",
+    ".agents/state/finops/<period>/release-operate/"
+  ],
+  "connector_dependencies": ["connector-launchdarkly", "connector-datadog", "connector-pagerduty", "connector-aws-cur"],
+  "methodology_skills_referenced": ["methodology.debug", "methodology.risk-assess", "methodology.verify"],
+  "permissions_required": [
+    {"scope": "release:trigger",  "risk_tier": "irreversible", "approval_policy": "hitl"},
+    {"scope": "release:rollback", "risk_tier": "irreversible", "approval_policy": "hitl"},
+    {"scope": "obs:read",         "risk_tier": "low",          "approval_policy": "auto"},
+    {"scope": "pagerduty:write",  "risk_tier": "high",         "approval_policy": "auto"},
+    {"scope": "finops:read",      "risk_tier": "low",          "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["internal", "confidential"],
+  "risk_tier": "high",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:approval, major:approval",
+  "mcp_servers_always_load": []
+}

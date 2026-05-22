@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# conformance — the plugin admission gate.
+#
+# Usage:
+#   conformance validate <plugin-dir>          # static checks; no runtime
+#   conformance run-golden <plugin-dir>        # golden fixture suite (LLM-driven)
+#   conformance run-adversarial <plugin-dir>   # adversarial fixture suite
+#   conformance produce-verdict <plugin-dir>   # emit signed ConformanceVerdict
+#   conformance check-perf <plugin-dir>        # perf regression vs baseline
+#   conformance all <plugin-dir>               # validate + golden + adversarial + verdict
+#
+# Exit codes: 0 pass, 1 fail, 2 misuse.
+
+set -euo pipefail
+
+if [[ -z "${CORTEX_HOME:-}" ]]; then
+  CORTEX_HOME="$(cd "$(dirname "$0")/../.." && pwd)"
+fi
+export CORTEX_HOME
+
+HERE="$CORTEX_HOME/platform/conformance"
+
+usage() {
+  sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+  exit 2
+}
+
+cmd="${1:-}"
+shift || true
+
+case "$cmd" in
+  validate)
+    bash "$HERE/conformance-validate.sh" "$@"
+    ;;
+  run-golden)
+    bash "$HERE/conformance-run-golden.sh" "$@"
+    ;;
+  run-adversarial)
+    bash "$HERE/conformance-run-adversarial.sh" "$@"
+    ;;
+  produce-verdict)
+    bash "$HERE/conformance-produce-verdict.sh" "$@"
+    ;;
+  check-perf)
+    bash "$HERE/conformance-check-perf.sh" "$@"
+    ;;
+  all)
+    plugin="${1:?missing plugin-dir}"
+    bash "$HERE/conformance-validate.sh" "$plugin" && \
+    bash "$HERE/conformance-run-golden.sh" "$plugin" && \
+    bash "$HERE/conformance-run-adversarial.sh" "$plugin" && \
+    bash "$HERE/conformance-check-perf.sh" "$plugin" && \
+    bash "$HERE/conformance-produce-verdict.sh" "$plugin"
+    ;;
+  ""|-h|--help)
+    usage
+    ;;
+  *)
+    echo "conformance: unknown command: $cmd" >&2
+    usage
+    ;;
+esac

@@ -1,0 +1,19 @@
+{
+  "name": "connector-github-actions",
+  "displayName": "cortex.ai — Connector: GitHub Actions",
+  "version": "0.2.0",
+  "description": "Connector wrapping the GitHub Actions MCP integration. Exposes workflow run triggers + status + artifact downloads. Used by platform.run-pipeline.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "connector",
+    "github-actions",
+    "ci-cd",
+    "mcp"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

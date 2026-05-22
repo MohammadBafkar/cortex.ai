@@ -1,0 +1,60 @@
+# Refactor with a safety net. MVP1 path uses engineering + quality + platform.
+# P1 swap-in: methodology.read-code and methodology.risk-assess (composed inline
+# by engineering.propose-pr) instead of "describe and pray".
+
+id: refactorWithSafety
+version: 1
+tier: MVP1
+description: |
+  Read the target → identify risky branches → cover them with tests BEFORE
+  refactoring → refactor → review → CI. Safety-net first.
+
+inputs:
+  - {name: target, type: string, required: true}      # file, module, or pattern
+
+states:
+  - id: cover_risky_branches
+    plugin: quality
+    skill: write-unit-test
+    gate: {require: []}
+    writes: .agents/state/tests/refactor-${target}/quality/
+
+  - id: refactor_implement
+    plugin: engineering
+    skill: propose-pr
+    gate:
+      require:
+        - .agents/state/tests/refactor-${target}/quality/suite.json
+    writes: .agents/state/prs/refactor-${target}/engineering/
+
+  - id: test_run
+    plugin: platform
+    skill: run-tests
+    gate: {require: [TestSuite, PullRequest]}
+    writes: .agents/state/runs/refactor-${target}/platform/test-run.json
+
+  - id: review
+    plugin: engineering
+    skill: review-diff
+    gate: {require: [PullRequest, TestRun]}
+    writes: .agents/state/reviews/refactor-${target}/engineering/
+
+  - id: build
+    plugin: platform
+    skill: run-pipeline
+    gate: {require: [ReviewVerdict], verdict: approve}
+    writes: .agents/state/runs/refactor-${target}/platform/run.json
+
+hitl_checkpoints:
+  - state: build
+    checkpoint_id: 1
+    tier: M
+    decider: rbac/release-managers
+    sla_hours: 24
+
+compensations:
+  - state: refactor_implement
+    on_failure: rollback
+
+fanout_budget: 4
+parallel_writes: false

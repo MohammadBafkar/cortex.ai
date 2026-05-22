@@ -1,0 +1,17 @@
+{
+  "name": "lang-dotnet",
+  "displayName": "cortex.ai — .NET",
+  "version": "0.1.0",
+  "description": "C#/.NET language skillset. Specializes generic capability skills (quality.write-unit-test, engineering.propose-pr) for .NET idioms — xunit, csproj modernization, nullable references. P3+ rollout.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "dotnet", "csharp", "language-skillset", "xunit", "msbuild"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"},
+    {"name": "quality", "version": "^1.1.0"},
+    {"name": "engineering", "version": "^1.1.0"}
+  ]
+}

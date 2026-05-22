@@ -1,0 +1,16 @@
+{
+  "name": "lang-typescript",
+  "displayName": "cortex.ai — TypeScript",
+  "version": "0.1.0",
+  "description": "TypeScript-specific language skillset. Specializes generic capability skills (quality.write-unit-test, quality.lint) for TS/JS idioms via the competing-providers rule. Ships vitest, biome, and tsc-version migration. P3+ rollout.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "typescript", "javascript", "language-skillset", "vitest", "biome"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"},
+    {"name": "quality", "version": "^1.1.0"}
+  ]
+}

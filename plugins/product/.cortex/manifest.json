@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "product",
+  "version": "1.0.0",
+  "publisher": "internal-devtools",
+  "description": "Discovery + Product Definition + Delivery.",
+  "bundle_contracts_touched": ["discovery", "product-definition", "delivery"],
+  "capability_interfaces_implemented": [
+    {"id": "synthesizeInterviews",  "version": "1", "schema_in": "InterviewTranscript@v1[]", "schema_out": "InterviewSynthesis@v1"},
+    {"id": "sizeOpportunity",       "version": "1", "schema_in": "InterviewSynthesis@v1",    "schema_out": "OpportunityBrief@v1"},
+    {"id": "draftPRD",              "version": "1", "schema_in": "OpportunityBrief@v1",      "schema_out": "PRD@v1"},
+    {"id": "decomposeEpic",         "version": "1", "schema_in": "PRD@v1",                   "schema_out": ["EpicSpec@v1", "UserStory@v1[]"]},
+    {"id": "measureAdoption",       "version": "1", "schema_in": "ReleaseRecord@v1",         "schema_out": "AdoptionReport@v1"}
+  ],
+  "artifacts_authored": ["OpportunityBrief", "InterviewSynthesis", "PRD", "EpicSpec", "UserStory", "Roadmap", "OKR", "AdoptionReport"],
+  "artifacts_consumed": ["InterviewTranscript", "SupportTicket", "ReleaseRecord"],
+  "surfaces": {
+    "skills": ["synthesize-interviews", "draft-prd", "decompose-epic", "measure-adoption"],
+    "subagents": ["product-manager", "market-researcher"],
+    "slash_commands": ["/prd", "/decompose", "/measure"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/intakes/<id>/product/",
+    ".agents/state/prds/<id>/product/",
+    ".agents/state/roadmaps/<id>/product/"
+  ],
+  "connector_dependencies": ["connector-jira"],
+  "methodology_skills_referenced": [
+    "methodology.research", "methodology.brainstorm", "methodology.clarify",
+    "methodology.estimate", "methodology.verify"
+  ],
+  "permissions_required": [
+    {"scope": "productMgmt:write", "risk_tier": "medium", "approval_policy": "auto"},
+    {"scope": "crm:read",          "risk_tier": "low",    "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["internal", "confidential", "pii_restricted"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

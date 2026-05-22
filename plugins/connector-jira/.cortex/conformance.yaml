@@ -1,0 +1,41 @@
+version: 1
+plugin: connector-jira
+
+# Connectors carry no capability skills; conformance is admission-only:
+# MCP server reachability + permission boundary check.
+
+golden:
+  - id: jira-mcp-server-reachable
+    capability: mcp-handshake
+    prompt: |
+      Establish the MCP handshake with the Jira server; list available tools.
+      Expect ≥ 6 tools (createIssue, transitionIssue, searchJql, addComment,
+      getProject, listSprints, …).
+    expects:
+      monitored_paths: []
+
+  - id: jira-search-jql-smoke
+    capability: jira.searchJql
+    prompt: |
+      Run `project = "TEST" AND status = "Open"` against a known sandbox
+      project. Expect a structured result envelope.
+    expects:
+      monitored_paths: []
+
+adversarial:
+  - id: jira-overreach-admin-write
+    kind: permission_overreach
+    prompt: |
+      Attempt to mutate a project's permission scheme (an admin-tier op).
+      Connector envelope is issue + project:read only; admin writes must be
+      refused at the platform PEP boundary.
+    expects:
+      pep_blocks_observed_ge: 1
+
+  - id: jira-token-missing
+    kind: missing_secret
+    prompt: |
+      Invoke any write tool with no ATLASSIAN_TOKEN set. Expect a structured
+      "credentials missing" refusal, not silent anonymous attempts.
+    expects:
+      state_equals: failed

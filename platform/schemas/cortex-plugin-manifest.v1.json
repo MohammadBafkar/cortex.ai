@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/cortex-plugin-manifest.v1.json",
+  "title": "CortexPluginManifest",
+  "description": "Cortex sidecar manifest that every Cortex plugin ships alongside its native host manifest. See SPEC.md.",
+  "type": "object",
+  "required": [
+    "name",
+    "version",
+    "publisher",
+    "bundle_contracts_touched",
+    "capability_interfaces_implemented",
+    "artifacts_authored",
+    "artifacts_consumed",
+    "surfaces",
+    "risk_tier",
+    "conformance_suite_ref"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "name": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[A-Za-z0-9.-]+)?$"},
+    "publisher": {"type": "string"},
+    "description": {"type": "string"},
+    "bundle_contracts_touched": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Bundle Contract ids this plugin participates in. Empty for the methodology plugin (packaging exception)."
+    },
+    "capability_interfaces_implemented": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "version", "schema_in", "schema_out"],
+        "properties": {
+          "id": {"type": "string"},
+          "version": {"type": "string"},
+          "schema_in": {"type": "string"},
+          "schema_out": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}}
+            ]
+          }
+        }
+      }
+    },
+    "artifacts_authored": {"type": "array", "items": {"type": "string"}},
+    "artifacts_consumed": {"type": "array", "items": {"type": "string"}},
+    "surfaces": {
+      "type": "object",
+      "required": ["skills", "subagents", "slash_commands", "hooks"],
+      "properties": {
+        "skills": {"type": "array", "items": {"type": "string"}},
+        "subagents": {"type": "array", "items": {"type": "string"}},
+        "slash_commands": {"type": "array", "items": {"type": "string"}},
+        "hooks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["event"],
+            "properties": {
+              "event": {"type": "string"},
+              "matcher": {"type": "string"}
+            }
+          }
+        },
+        "mcp_servers": {"type": "array", "items": {"type": "string"}},
+        "lsp_servers": {"type": "array", "items": {"type": "string"}},
+        "monitors": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "workspace_state_paths_owned": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Per-path ownership (per SPEC.md). Each entry is a path template under .agents/state/. Single-writer-per-path enforced by the platform PreToolUse PEP hook."
+    },
+    "connector_dependencies": {"type": "array", "items": {"type": "string"}},
+    "methodology_skills_referenced": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of methodology.<name> skills referenced inline in this plugin's skill bodies. Conformance validates each reference resolves to an admitted methodology skill. NOT used as a YAML frontmatter field on individual skills."
+    },
+    "permissions_required": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scope", "risk_tier", "approval_policy"],
+        "properties": {
+          "scope": {"type": "string"},
+          "risk_tier": {"enum": ["low", "medium", "high", "irreversible"]},
+          "approval_policy": {"enum": ["auto", "hitl", "two-person"]}
+        }
+      }
+    },
+    "data_classes_handled": {
+      "type": "array",
+      "items": {"enum": ["public", "internal", "confidential", "pii_restricted"]}
+    },
+    "risk_tier": {"enum": ["low", "medium", "high", "irreversible"]},
+    "conformance_suite_ref": {"type": "string"},
+    "deprecation_policy": {
+      "type": "object",
+      "properties": {
+        "notice_period_days": {"type": "integer", "minimum": 0}
+      }
+    },
+    "update_strategy": {"type": "string"},
+    "mcp_servers_always_load": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["server", "justification"],
+        "properties": {
+          "server": {"type": "string"},
+          "justification": {"type": "string"}
+        }
+      },
+      "description": "MCP servers that opt out of the alwaysLoad: false default. Each entry must justify why it's worth the always-loaded token cost. See SPEC.md"
+    },
+    "packaging_exception": {
+      "type": "object",
+      "description": "Set ONLY for plugins that legitimately implement zero Bundle Contracts (e.g., methodology).",
+      "properties": {
+        "reason": {"type": "string"},
+        "produces_authoritative_artifacts": {"type": "boolean", "const": false}
+      }
+    }
+  }
+}

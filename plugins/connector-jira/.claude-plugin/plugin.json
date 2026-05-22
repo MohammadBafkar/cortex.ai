@@ -1,0 +1,12 @@
+{
+  "name": "connector-jira",
+  "displayName": "cortex.ai — Connector: Jira",
+  "version": "0.1.0",
+  "description": "Connector plugin wrapping Atlassian Jira's MCP server. Exposes typed tools for issues, transitions, sprints, links, and JQL search. Used by product, release-operate, and content for ticket linkage and status sync.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["connector", "jira", "atlassian", "ticketing", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

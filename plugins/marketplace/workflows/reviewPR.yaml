@@ -1,0 +1,44 @@
+# Composite parallel review — the clearest demo of per-path disjointness.
+# Engineering + quality run in parallel (P1: + security + a11y).
+# Orchestrator (marketplace.merge-review) merges and writes the composite PR-level verdict.
+
+id: reviewPR
+version: 1
+tier: MVP1
+description: |
+  Fans out reviewers in parallel; each writes to its own contributor subdir under
+  .agents/state/reviews/<pr-id>/<plugin>/. The composite verdict at
+  .agents/state/reviews/<pr-id>/verdict.json is written by the orchestrator only.
+
+inputs:
+  - {name: pr_id, type: string, required: true}
+
+states:
+  - id: review_engineering
+    plugin: engineering
+    skill: review-diff
+    writes: .agents/state/reviews/${pr_id}/engineering/
+
+  - id: review_quality
+    plugin: quality
+    skill: review-test-coverage
+    writes: .agents/state/reviews/${pr_id}/quality/
+    parallel_with: [review_engineering]
+
+  - id: merge_verdict
+    plugin: marketplace
+    skill: merge-review
+    gate:
+      require:
+        - .agents/state/reviews/${pr_id}/engineering/verdict.json
+        - .agents/state/reviews/${pr_id}/quality/verdict.json
+    writes: .agents/state/reviews/${pr_id}/verdict.json
+
+hitl_checkpoints: []
+
+compensations:
+  - state: review_quality
+    on_failure: skip   # MVP1: if quality plugin missing, proceed with engineering-only review
+
+fanout_budget: 4
+parallel_writes: false   # reviewers do not modify code, just write findings

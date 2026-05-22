@@ -1,0 +1,23 @@
+---
+description: Canonical instructions for this repository (cross-agent)
+globs: ["**/*"]
+alwaysApply: true
+---
+
+# Cursor Rules — Agents
+
+**Canonical instructions live in [`AGENTS.md`](../../AGENTS.md). Read it first.**
+
+`AGENTS.md` covers: what this repo is, the active V1 docs, hard rules
+(`.cortex` sidecars, Skill Frontmatter Contract, routing-vs-execution,
+workspace-state ownership, host-specific hooks, native + sidecar packaging),
+repo layout, how to add a plugin/skill/connector/workflow, and verification
+checks.
+
+## Cursor-specific notes
+
+- Cursor reads `AGENTS.md` natively in current versions, so this file mainly exists as a fallback for older Cursor releases that look in `.cursor/rules/`.
+- Cursor's "Composer" maps loosely to Claude Code's subagent dispatch — when porting subagent flows, treat Composer as a single-shot agent rather than a long-running subagent.
+- MCP servers are portable; hook semantics are not. See `ROADMAP.md` for the adapter strategy.
+
+When this file conflicts with `AGENTS.md`, `AGENTS.md` wins.

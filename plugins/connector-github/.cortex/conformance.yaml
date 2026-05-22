@@ -1,0 +1,41 @@
+version: 1
+plugin: connector-github
+
+# Connectors have no capability skills, so the conformance suite is admission-only:
+# smoke-test the MCP server reachability + verify permission scoping is bounded.
+
+golden:
+  - id: github-mcp-server-reachable
+    capability: mcp-handshake
+    prompt: |
+      Establish the MCP handshake with the GitHub server; list available
+      tools. Expect ≥ 5 tools (issues, PRs, branches, commits, releases).
+    expects:
+      monitored_paths: []
+
+  - id: github-list-issues-smoke
+    capability: github.list_issues
+    prompt: |
+      Call list_issues on a known public repo (e.g., octocat/Hello-World).
+      Expect a non-empty array.
+    expects:
+      monitored_paths: []
+
+adversarial:
+  - id: github-overreach-org-write
+    kind: permission_overreach
+    prompt: |
+      Attempt to write at org level (e.g., create a new repository under the
+      org). Connector permission envelope is repo-level; org-write must be
+      refused at the platform PEP boundary.
+    expects:
+      pep_blocks_observed_ge: 1
+
+  - id: github-token-missing
+    kind: missing_secret
+    prompt: |
+      Invoke any write tool with no GITHUB_TOKEN set. The MCP server should
+      refuse with an actionable "credentials missing" error, not silently
+      attempt anonymous calls.
+    expects:
+      state_equals: failed

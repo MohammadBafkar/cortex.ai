@@ -1,0 +1,47 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "content",
+  "version": "2.0.0",
+  "publisher": "internal-devtools",
+  "description": "Documentation + Stakeholder Comms + Support & Onboarding + Localization + Developer Experience + Sunset.",
+  "bundle_contracts_touched": ["documentation", "stakeholder-comms", "support-onboarding", "localization", "developer-experience", "sunset"],
+  "capability_interfaces_implemented": [
+    {"id": "writeDoc",            "version": "1", "schema_in": "APIContract@v1",     "schema_out": "DocPage@v1"},
+    {"id": "writeReleaseNotes",   "version": "1", "schema_in": "ReleaseRecord@v1",   "schema_out": "ReleaseNotes@v1"},
+    {"id": "writeStatusUpdate",   "version": "1", "schema_in": "IncidentRecord@v1",  "schema_out": "StatusUpdate@v1"},
+    {"id": "writeAdvisory",       "version": "1", "schema_in": "SecurityFinding@v1", "schema_out": "Advisory@v1"},
+    {"id": "handleSupportTicket", "version": "1", "schema_in": "SupportTicket@v1",   "schema_out": "TicketResponse@v1"},
+    {"id": "localize",            "version": "1", "schema_in": "DocPage@v1",         "schema_out": "DocPage@v1"},
+    {"id": "improveDX",           "version": "1", "schema_in": "DXSignal@v1",        "schema_out": "DXImprovement@v1"},
+    {"id": "writeSunsetNotice",   "version": "1", "schema_in": "DeprecationProposal@v1", "schema_out": "SunsetNotice@v1"}
+  ],
+  "artifacts_authored": ["DocPage", "APIReference", "ReleaseNotes", "StatusUpdate", "Advisory", "BoardUpdate", "TicketResponse", "DXImprovement", "SunsetNotice", "ArchivalRecord"],
+  "artifacts_consumed": ["APIContract", "ReleaseRecord", "IncidentRecord", "SecurityFinding", "SupportTicket", "DXSignal", "DeprecationProposal"],
+  "surfaces": {
+    "skills": ["write-doc", "write-release-notes", "write-status-update", "write-advisory", "handle-support-ticket", "localize", "improve-dx", "write-sunset-notice"],
+    "subagents": ["technical-writer", "comms-lead", "support-rep", "loc-engineer", "dx-engineer", "sunset-officer"],
+    "slash_commands": ["/doc", "/release-notes", "/status-update", "/advisory", "/support", "/localize", "/dx", "/sunset-notice"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/docs/<id>/content/",
+    ".agents/state/comms/<id>/content/",
+    ".agents/state/deprecations/<id>/content/",
+    ".agents/state/support/<id>/content/",
+    ".agents/state/loc/<id>/content/"
+  ],
+  "connector_dependencies": ["connector-docusaurus", "connector-statuspage", "connector-zendesk", "connector-crowdin"],
+  "methodology_skills_referenced": ["methodology.mentor", "methodology.verify", "methodology.research", "methodology.debug"],
+  "permissions_required": [
+    {"scope": "docs:write",     "risk_tier": "medium", "approval_policy": "auto"},
+    {"scope": "comms:publish",  "risk_tier": "high",   "approval_policy": "hitl"},
+    {"scope": "tickets:write",  "risk_tier": "medium", "approval_policy": "auto"},
+    {"scope": "loc:translate",  "risk_tier": "low",    "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["public", "internal", "confidential"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

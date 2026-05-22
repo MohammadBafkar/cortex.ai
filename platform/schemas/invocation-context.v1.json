@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/invocation-context.v1.json",
+  "title": "InvocationContext",
+  "description": "Universal envelope propagated through every primitive call. See SPEC.md",
+  "type": "object",
+  "required": ["invocation_id", "audit_correlation_id", "tenant_id", "principal", "idempotency_key", "trust_label", "depth", "fanout_budget"],
+  "properties": {
+    "invocation_id": {"type": "string"},
+    "audit_correlation_id": {"type": "string"},
+    "tenant_id": {"type": "string"},
+    "principal": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": {"enum": ["user", "service_account", "parent_agent"]},
+        "id": {"type": "string"},
+        "on_behalf_of": {"type": "string"}
+      }
+    },
+    "workflow_id": {"type": "string"},
+    "parent_invocation_id": {"type": "string"},
+    "idempotency_key": {"type": "string"},
+    "budget_envelope": {
+      "type": "object",
+      "properties": {
+        "tokens_remaining": {"type": "integer"},
+        "tokens_ceiling": {"type": "integer"},
+        "wall_clock_remaining_ms": {"type": "integer"}
+      }
+    },
+    "trust_label": {
+      "enum": ["trusted_first_party", "trusted_internal", "untrusted_user_content", "untrusted_external"]
+    },
+    "depth": {"type": "integer", "minimum": 0},
+    "fanout_budget": {"type": "integer", "minimum": 1},
+    "plugin_id": {"type": "string"},
+    "component_id": {"type": "string"}
+  }
+}

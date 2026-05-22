@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "data",
+  "version": "1.0.0",
+  "publisher": "internal-devtools",
+  "description": "Data Engineering pipelines + ML/AI lifecycle + Experimentation.",
+  "bundle_contracts_touched": ["data-engineering", "ml-ai", "experimentation"],
+  "capability_interfaces_implemented": [
+    {"id": "definePipeline",  "version": "1", "schema_in": "DataSourceSpec@v1",   "schema_out": "DataPipeline@v1"},
+    {"id": "trainModel",      "version": "1", "schema_in": "DatasetRef@v1",       "schema_out": "ModelCandidate@v1"},
+    {"id": "promoteModel",    "version": "1", "schema_in": "ModelCandidate@v1",   "schema_out": "ModelRecord@v1"},
+    {"id": "runExperiment",   "version": "1", "schema_in": "ExperimentSpec@v1",   "schema_out": "ExperimentResult@v1"}
+  ],
+  "artifacts_authored": ["DataPipeline", "DatasetRef", "ModelCandidate", "ModelRecord", "ModelCard", "ExperimentSpec", "ExperimentResult"],
+  "artifacts_consumed": ["PRD", "SystemDesignDoc", "PrivacyImpactAssessment", "EthicsReview"],
+  "surfaces": {
+    "skills": ["define-pipeline", "train-model", "promote-model", "run-experiment"],
+    "subagents": ["data-engineer", "ml-engineer", "experimenter"],
+    "slash_commands": ["/pipeline", "/train", "/promote-model", "/experiment"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/data/<id>/data/",
+    ".agents/state/ml/<id>/data/",
+    ".agents/state/experiments/<id>/data/"
+  ],
+  "connector_dependencies": ["connector-dbt", "connector-airflow", "connector-snowflake", "connector-mlflow", "connector-launchdarkly"],
+  "methodology_skills_referenced": ["methodology.research", "methodology.risk-assess", "methodology.verify", "methodology.hypothesis-test"],
+  "permissions_required": [
+    {"scope": "data:warehouse:read",  "risk_tier": "high",         "approval_policy": "hitl"},
+    {"scope": "data:warehouse:write", "risk_tier": "irreversible", "approval_policy": "hitl"},
+    {"scope": "ml:train",             "risk_tier": "medium",       "approval_policy": "auto"},
+    {"scope": "ml:promote",           "risk_tier": "irreversible", "approval_policy": "hitl"},
+    {"scope": "experiment:run",       "risk_tier": "medium",       "approval_policy": "hitl"}
+  ],
+  "data_classes_handled": ["internal", "confidential", "pii_restricted"],
+  "risk_tier": "high",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 180},
+  "update_strategy": "patch:auto, minor:approval, major:approval",
+  "mcp_servers_always_load": []
+}

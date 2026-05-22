@@ -1,0 +1,15 @@
+{
+  "name": "security",
+  "displayName": "Cortex — Security",
+  "version": "1.0.0",
+  "description": "Security + Privacy & Compliance + Identity & Access. Risk tier: high.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "security", "privacy", "compliance", "iam"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"}
+  ]
+}

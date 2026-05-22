@@ -1,0 +1,14 @@
+{
+  "$comment": "MCP server reference for the Terraform connector. Wraps HashiCorp's terraform-mcp-server. Exposes typed tools for plan/apply/state/workspace and Terraform Registry search. `terraform apply` is gated behind checkpoint 8 (Production deploy of a runtime change) — capability plugins must obtain HITL approval before invoking it on prod-tagged workspaces.",
+  "mcpServers": {
+    "terraform": {
+      "command": "npx",
+      "args": ["-y", "@hashicorp/terraform-mcp-server"],
+      "env": {
+        "TFC_TOKEN":   "${secret:terraform-cloud-token}",
+        "TFC_ORG_ID":  "${secret:terraform-cloud-org-id}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

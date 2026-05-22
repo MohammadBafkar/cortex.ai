@@ -1,0 +1,121 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "platform",
+  "version": "0.2.0",
+  "publisher": "internal-devtools",
+  "description": "Cortex V1 platform plugin for pipeline runs, test execution, hooks, audit, and the production apply gate.",
+  "bundle_contracts_touched": [
+    "ci-cd",
+    "test-execution",
+    "platform"
+  ],
+  "capability_interfaces_implemented": [
+    {
+      "id": "runPipeline",
+      "version": "1",
+      "schema_in": "PullRequest@v1",
+      "schema_out": "PipelineRun@v1"
+    },
+    {
+      "id": "runTests",
+      "version": "1",
+      "schema_in": "TestSuite@v1",
+      "schema_out": "TestRun@v1"
+    },
+    {
+      "id": "applyIaC",
+      "version": "1",
+      "schema_in": "IaCPlan@v1",
+      "schema_out": "ApplyResult@v1"
+    }
+  ],
+  "artifacts_authored": [
+    "PipelineRun",
+    "TestRun",
+    "BuildArtifact",
+    "ApplyResult"
+  ],
+  "artifacts_consumed": [
+    "PullRequest",
+    "TestSuite",
+    "IaCPlan"
+  ],
+  "surfaces": {
+    "skills": [
+      "run-pipeline",
+      "run-tests",
+      "apply-iac"
+    ],
+    "subagents": [],
+    "slash_commands": [
+      "/build",
+      "/test",
+      "/apply"
+    ],
+    "hooks": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash:gh pr create.*"
+      }
+    ]
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/runs/<run-id>/platform/",
+    ".agents/state/builds/<build-id>/platform/"
+  ],
+  "connector_dependencies": [
+    "connector-github-actions"
+  ],
+  "methodology_skills_referenced": [
+    "methodology.verify",
+    "methodology.risk-assess"
+  ],
+  "permissions_required": [
+    {
+      "scope": "ci:trigger",
+      "risk_tier": "medium",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "ci:read",
+      "risk_tier": "low",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "iac:plan",
+      "risk_tier": "low",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "iac:apply",
+      "risk_tier": "irreversible",
+      "approval_policy": "hitl"
+    },
+    {
+      "scope": "artifact:sign",
+      "risk_tier": "high",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "env:create",
+      "risk_tier": "high",
+      "approval_policy": "hitl"
+    },
+    {
+      "scope": "dr:trigger",
+      "risk_tier": "high",
+      "approval_policy": "hitl"
+    }
+  ],
+  "data_classes_handled": [
+    "internal",
+    "confidential"
+  ],
+  "risk_tier": "high",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {
+    "notice_period_days": 90
+  },
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

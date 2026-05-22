@@ -1,0 +1,26 @@
+{
+  "name": "marketplace",
+  "displayName": "Cortex — Marketplace",
+  "version": "0.2.0",
+  "description": "Marketplace control plane for Cortex V1: route prompts, run conformance, query audit, and coordinate the MVP workflow spine.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "cortex",
+    "marketplace",
+    "routing",
+    "conformance",
+    "audit"
+  ],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {
+      "name": "methodology",
+      "version": "^0.2.0"
+    }
+  ]
+}

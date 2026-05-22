@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/artifact-envelope.v1.json",
+  "title": "ArtifactEnvelope",
+  "description": "Universal envelope wrapping every artifact that crosses a bundle boundary. See SPEC.md",
+  "type": "object",
+  "required": [
+    "artifact_id",
+    "schema",
+    "schema_version",
+    "owning_bundle",
+    "state",
+    "data_class",
+    "produced_by",
+    "produced_at",
+    "trust_label",
+    "content_hash"
+  ],
+  "properties": {
+    "artifact_id": {"type": "string"},
+    "schema": {"type": "string", "description": "Artifact schema name, e.g. PullRequest, ReviewVerdict, ADR."},
+    "schema_version": {"type": "string"},
+    "owning_bundle": {"type": "string"},
+    "owning_plugin": {"type": "string"},
+    "state": {
+      "enum": ["draft", "proposed", "approved", "superseded", "revoked", "archived", "failed", "expired", "cancelled", "requires_human"]
+    },
+    "data_class": {
+      "enum": ["public", "internal", "confidential", "pii_restricted"]
+    },
+    "produced_by": {
+      "type": "object",
+      "required": ["plugin", "skill_or_subagent"],
+      "properties": {
+        "plugin": {"type": "string"},
+        "skill_or_subagent": {"type": "string"},
+        "principal_id": {"type": "string"}
+      }
+    },
+    "produced_at": {"type": "string", "format": "date-time"},
+    "parent_artifact_ids": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Inputs that this artifact derives from; forms the provenance DAG."
+    },
+    "trust_label": {
+      "enum": ["trusted_first_party", "trusted_internal", "untrusted_user_content", "untrusted_external"]
+    },
+    "content_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "signature": {"type": "string", "description": "Opt-in per artifact class; required for ConformanceVerdict, SecurityFinding, ReleaseRecord."},
+    "methodology_invoked": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of methodology skills composed inline during the artifact's production (e.g., methodology.plan-work)."
+    },
+    "workspace_path": {"type": "string", "description": "Per-path location under .agents/state/ where this artifact was first written."},
+    "extensions": {"type": "object", "additionalProperties": true}
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "connector-datadog",
+  "displayName": "cortex.ai \u2014 Connector: Datadog",
+  "version": "0.1.0",
+  "description": "Connector wrapping Datadog's MCP server. Exposes SLO + metric + dashboard read APIs. Used by release-operate.observe + emit-dora.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "connector",
+    "datadog",
+    "observability",
+    "mcp"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

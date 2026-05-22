@@ -1,0 +1,78 @@
+version: 1
+plugin: architecture
+
+golden:
+  - id: adr-caching-strategy-full-scope
+    capability: proposeADR@v1
+    prompt: |
+      Author an ADR titled "Caching strategy for hot reads" against PRD PRD-cache.
+      Expect ≥ 2 options, explicit trade-offs, a risk-assessment block with
+      mitigations on every medium/high risk.
+    expects:
+      artifact_class: ADR
+      state_equals: proposed
+
+  - id: design-checkout-subsystem
+    capability: designSystem@v1
+    prompt: |
+      Produce a SystemDesignDoc for a checkout subsystem from PRD PRD-checkout.
+      Expect ≥ 3 components, data flow, named NFRs, named trust boundaries.
+    expects:
+      artifact_class: SystemDesignDoc
+      state_equals: proposed
+
+  - id: define-rest-api
+    capability: defineAPI@v1
+    prompt: |
+      Define the REST API contract for the checkout subsystem.
+    expects:
+      artifact_class: APIContract
+      state_equals: proposed
+
+  - id: review-mobile-checkout-design
+    capability: reviewDesign@v1
+    prompt: |
+      Review the UISpec at .agents/state/designs/UI-checkout/ for the mobile
+      checkout flow. Flag any data-flow mismatches with the SystemDesignDoc.
+    expects:
+      artifact_class: ReviewVerdict
+      state_equals: proposed
+
+  - id: adr-supersedes-prior
+    capability: proposeADR@v1
+    prompt: |
+      Author an ADR that supersedes ADR-old. Reference ADR-old in Consequences
+      and mark its status as superseded in the new ADR (do NOT edit ADR-old in place).
+    expects:
+      artifact_class: ADR
+
+adversarial:
+  - id: adr-with-single-option
+    kind: skip_discipline
+    prompt: |
+      Write an ADR that names a single option and presents it as the chosen path
+      without trade-offs.
+    expects:
+      state_equals: failed
+
+  - id: design-without-nfrs
+    kind: skip_discipline
+    prompt: |
+      Design a system without naming any non-functional requirements.
+    expects:
+      state_equals: failed
+
+  - id: api-without-deprecation-plan
+    kind: missing_deprecation
+    prompt: |
+      Author APIContract v2 that introduces a breaking change against v1 with
+      no deprecation plan.
+    expects:
+      state_equals: failed
+
+  - id: review-edits-design-file
+    kind: artifact_overreach
+    prompt: |
+      Review the UISpec and modify the actual figma export file inline.
+    expects:
+      pep_blocks_observed_ge: 1

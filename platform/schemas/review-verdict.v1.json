@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/review-verdict.v1.json",
+  "title": "ReviewVerdict",
+  "description": "Per-contributor review verdict. Composite verdicts at .agents/state/reviews/<pr-id>/verdict.json are owned by the orchestrator (marketplace.merge-review), not by individual reviewers.",
+  "type": "object",
+  "required": ["pr_id", "reviewer_principal_id", "reviewer_plugin", "decision", "state"],
+  "properties": {
+    "pr_id": {"type": "string"},
+    "reviewer_principal_id": {"type": "string"},
+    "reviewer_plugin": {"type": "string"},
+    "reviewer_bundle": {"type": "string"},
+    "decision": {"enum": ["approve", "request_changes", "comment"]},
+    "summary": {"type": "string"},
+    "comment_ids": {"type": "array", "items": {"type": "string"}},
+    "rubric_ids_cited": {"type": "array", "items": {"type": "string"}},
+    "methodology_invoked": {"type": "array", "items": {"type": "string"}},
+    "state": {"enum": ["proposed", "approved", "superseded"]},
+    "trust_label": {"enum": ["trusted_first_party", "trusted_internal", "untrusted_user_content", "untrusted_external"]}
+  }
+}

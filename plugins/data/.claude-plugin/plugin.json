@@ -1,0 +1,15 @@
+{
+  "name": "data",
+  "displayName": "Cortex — Data",
+  "version": "1.0.0",
+  "description": "Data Engineering + ML/AI + Experimentation. High-risk admission requires security + governance from P1.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "data", "ml", "ai", "experimentation"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"}
+  ]
+}

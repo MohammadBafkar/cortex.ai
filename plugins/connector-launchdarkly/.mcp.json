@@ -1,0 +1,16 @@
+{
+  "$comment": "MCP server reference for the connector-launchdarkly connector. Capability plugins call the exposed typed tools by name from their skill bodies.",
+  "mcpServers": {
+    "launchdarkly": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@launchdarkly/ld-mcp-server"
+      ],
+      "env": {
+        "LD_API_KEY": "${secret:launchdarkly-api-key}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

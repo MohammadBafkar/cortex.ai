@@ -1,0 +1,28 @@
+{
+  "name": "quality",
+  "displayName": "Cortex — Quality",
+  "version": "0.2.0",
+  "description": "Cortex V1 quality plugin for unit-test authoring and execution.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "cortex",
+    "quality",
+    "unit-tests"
+  ],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {
+      "name": "methodology",
+      "version": "^0.2.0"
+    },
+    {
+      "name": "engineering",
+      "version": "^0.2.0"
+    }
+  ]
+}

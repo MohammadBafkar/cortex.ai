@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/conformance-verdict.v1.json",
+  "title": "ConformanceVerdict",
+  "description": "Signed verdict produced by the conformance harness on plugin admission. The marketplace catalog refuses installs of plugins without a current verdict. See ROADMAP.md",
+  "type": "object",
+  "required": ["schema", "schema_version", "plugin", "verdict", "scores", "fixtures_hash", "signed_at"],
+  "properties": {
+    "schema": {"type": "string", "const": "ConformanceVerdict"},
+    "schema_version": {"type": "string", "const": "1"},
+    "plugin": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"}
+      }
+    },
+    "verdict": {"enum": ["pass", "fail", "incomplete"]},
+    "scores": {
+      "type": "object",
+      "properties": {
+        "validate":    {"enum": ["pass", "fail", "skipped"]},
+        "golden":      {
+          "type": "object",
+          "properties": {
+            "passed": {"type": "integer", "minimum": 0},
+            "failed": {"type": "integer", "minimum": 0},
+            "skipped": {"type": "integer", "minimum": 0}
+          }
+        },
+        "adversarial": {
+          "type": "object",
+          "properties": {
+            "passed": {"type": "integer", "minimum": 0},
+            "failed": {"type": "integer", "minimum": 0},
+            "skipped": {"type": "integer", "minimum": 0}
+          }
+        },
+        "perf":        {"enum": ["pass", "fail", "skipped"]}
+      }
+    },
+    "fixtures_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "signed_at":     {"type": "string", "format": "date-time"},
+    "signature":     {"type": "string", "description": "Trust-authority signature (ed25519 in P1; content-hash signature in MVP1)."}
+  }
+}

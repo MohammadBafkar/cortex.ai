@@ -1,0 +1,30 @@
+{
+  "name": "platform",
+  "displayName": "Cortex — Platform",
+  "version": "0.2.0",
+  "description": "Cortex V1 platform plugin for hooks, audit, conformance support, and pipeline primitives.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "cortex",
+    "platform",
+    "hooks",
+    "pipeline",
+    "audit"
+  ],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {
+      "name": "methodology",
+      "version": "^0.2.0"
+    },
+    {
+      "name": "connector-github-actions",
+      "version": "^0.2.0"
+    }
+  ]
+}

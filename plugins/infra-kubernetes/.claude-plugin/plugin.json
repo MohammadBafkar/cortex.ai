@@ -1,0 +1,19 @@
+{
+  "name": "infra-kubernetes",
+  "displayName": "cortex.ai — Kubernetes",
+  "version": "0.1.0",
+  "description": "Kubernetes-specific infra skillset. Specializes platform/release-operate/security generic interfaces for K8s contexts — manifest authoring, RBAC audit, Pod Security Standards proposals. Composes the connector-kubernetes MCP server. P3+ rollout.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "infra-skillset", "kubernetes", "k8s", "manifests", "rbac"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"},
+    {"name": "platform", "version": "^1.1.0"},
+    {"name": "release-operate", "version": "^1.1.0"},
+    {"name": "security", "version": "^1.1.0"},
+    {"name": "connector-kubernetes", "version": "^0.1.0"}
+  ]
+}

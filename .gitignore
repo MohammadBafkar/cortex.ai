@@ -1,0 +1,11 @@
+.agents/state/**
+!.agents/state/markers/
+!.agents/state/markers/**
+.DS_Store
+node_modules/
+*.swp
+*.log
+dist/
+.claude/local/
+~/.claude-plugin/audit/
+~/.claude-plugin/cas/

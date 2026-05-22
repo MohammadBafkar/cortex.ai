@@ -1,0 +1,52 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "connector-github-actions",
+  "version": "0.2.0",
+  "publisher": "internal-devtools",
+  "description": "Connector wrapping the GitHub Actions MCP integration. Exposes workflow run triggers + status + artifact downloads. Used by platform.run-pipeline.",
+  "bundle_contracts_touched": [],
+  "capability_interfaces_implemented": [],
+  "artifacts_authored": [],
+  "artifacts_consumed": [],
+  "surfaces": {
+    "skills": [],
+    "subagents": [],
+    "slash_commands": [],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": [],
+  "permissions_required": [
+    {
+      "scope": "actions:read",
+      "risk_tier": "low",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "actions:trigger",
+      "risk_tier": "medium",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "actions:cancel",
+      "risk_tier": "medium",
+      "approval_policy": "auto"
+    }
+  ],
+  "data_classes_handled": [
+    "internal",
+    "confidential"
+  ],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {
+    "notice_period_days": 90
+  },
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": [],
+  "packaging_exception": {
+    "reason": "Connector plugin — exposes external MCP tools, no Capability Interfaces. Per CONNECTORS.md.",
+    "produces_authoritative_artifacts": false
+  }
+}

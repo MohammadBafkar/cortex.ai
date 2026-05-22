@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "infra-kubernetes",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "Kubernetes infra skillset. Specializes platform/release-operate/security interfaces for K8s contexts. Authors manifests, audits RBAC, proposes Pod Security Standards.",
+  "bundle_contracts_touched": ["infra-kubernetes"],
+  "capability_interfaces_implemented": [
+    {"id": "writeK8sManifest",            "version": "1", "schema_in": "ReleasePlan@v1",         "schema_out": "DeploymentManifest@v1"},
+    {"id": "auditRbacGrants",             "version": "1", "schema_in": "PullRequest@v1",         "schema_out": "RBACFinding@v1"},
+    {"id": "proposePodSecurityStandards", "version": "1", "schema_in": "DeploymentManifest@v1",  "schema_out": "PodSecurityProposal@v1"}
+  ],
+  "artifacts_authored": ["DeploymentManifest", "RBACFinding", "PodSecurityProposal"],
+  "artifacts_consumed": ["ReleasePlan", "PullRequest", "DeploymentManifest"],
+  "surfaces": {
+    "skills": ["write-manifest", "audit-rbac-grants", "propose-pod-security-standards"],
+    "subagents": ["k8s-manifest-author", "k8s-rbac-auditor"],
+    "slash_commands": ["/k8s-manifest", "/k8s-rbac-audit", "/k8s-pss"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/infra/infra-kubernetes/<artifact-id>/"
+  ],
+  "connector_dependencies": ["connector-kubernetes"],
+  "methodology_skills_referenced": ["methodology.read-code", "methodology.risk-assess", "methodology.verify"],
+  "permissions_required": [
+    {"scope": "fs:write:manifests", "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "fs:read",            "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "k8s:read",           "risk_tier": "low",    "approval_policy": "auto"},
+    {"scope": "k8s:namespace:write","risk_tier": "medium", "approval_policy": "checkpoint"}
+  ],
+  "data_classes_handled": ["internal", "confidential"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "architecture",
+  "version": "1.0.0",
+  "publisher": "internal-devtools",
+  "description": "Full Architecture + API Lifecycle + Design.",
+  "bundle_contracts_touched": ["architecture", "api-lifecycle", "design"],
+  "capability_interfaces_implemented": [
+    {"id": "proposeADR",     "version": "1", "schema_in": "PRD@v1",          "schema_out": "ADR@v1"},
+    {"id": "designSystem",   "version": "1", "schema_in": "PRD@v1",          "schema_out": "SystemDesignDoc@v1"},
+    {"id": "defineAPI",      "version": "1", "schema_in": "SystemDesignDoc@v1", "schema_out": "APIContract@v1"},
+    {"id": "reviewDesign",   "version": "1", "schema_in": "UISpec@v1",       "schema_out": ["ReviewVerdict@v1", "ReviewComment@v1[]"]}
+  ],
+  "artifacts_authored": ["ADR", "SystemDesignDoc", "APIContract", "UISpec", "NFRSpec", "ReviewComment", "ReviewVerdict"],
+  "artifacts_consumed": ["PRD", "UserStory", "OpportunityBrief"],
+  "surfaces": {
+    "skills": ["propose-adr", "design-system", "define-api", "review-design"],
+    "subagents": ["system-architect", "api-architect", "ui-designer"],
+    "slash_commands": ["/adr", "/design", "/api"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/adrs/<id>/architecture/",
+    ".agents/state/blueprints/<id>/architecture/",
+    ".agents/state/designs/<id>/architecture/",
+    ".agents/state/apis/<id>/architecture/",
+    ".agents/state/reviews/<pr-id>/architecture/"
+  ],
+  "connector_dependencies": ["connector-confluence", "connector-figma"],
+  "methodology_skills_referenced": [
+    "methodology.decompose", "methodology.risk-assess", "methodology.research",
+    "methodology.brainstorm", "methodology.verify"
+  ],
+  "permissions_required": [
+    {"scope": "docs:write",       "risk_tier": "medium", "approval_policy": "auto"},
+    {"scope": "api-registry:write","risk_tier": "medium", "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["internal", "confidential"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

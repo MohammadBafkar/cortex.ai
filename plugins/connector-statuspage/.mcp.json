@@ -1,0 +1,14 @@
+{
+  "$comment": "MCP server reference for the Atlassian Statuspage connector. Wraps Statuspage's MCP server. Publishing an incident update to a public statuspage is HITL-checkpointed (checkpoint 19 — Customer comms). Capability plugins draft via this connector then await /approve before publication.",
+  "mcpServers": {
+    "statuspage": {
+      "command": "npx",
+      "args": ["-y", "@statuspage/mcp-server"],
+      "env": {
+        "STATUSPAGE_API_KEY": "${secret:statuspage-api-key}",
+        "STATUSPAGE_PAGE_ID": "${secret:statuspage-page-id}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

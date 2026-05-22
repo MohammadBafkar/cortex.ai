@@ -1,0 +1,100 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "engineering",
+  "version": "0.2.0",
+  "publisher": "internal-devtools",
+  "description": "Cortex V1 engineering plugin for implementation and code review.",
+  "bundle_contracts_touched": [
+    "code-authoring",
+    "code-review"
+  ],
+  "capability_interfaces_implemented": [
+    {
+      "id": "proposePR",
+      "version": "1",
+      "schema_in": "UserStory@v1",
+      "schema_out": "PullRequest@v1"
+    },
+    {
+      "id": "reviewDiff",
+      "version": "1",
+      "schema_in": "PullRequest@v1",
+      "schema_out": "ReviewVerdict@v1"
+    }
+  ],
+  "artifacts_authored": [
+    "PullRequest",
+    "ReviewVerdict"
+  ],
+  "artifacts_consumed": [
+    "UserStory",
+    "PullRequest",
+    "TestSuite",
+    "TestRun"
+  ],
+  "surfaces": {
+    "skills": [
+      "propose-pr",
+      "review-diff"
+    ],
+    "subagents": [
+      "code-author",
+      "code-reviewer"
+    ],
+    "slash_commands": [
+      "/implement",
+      "/review"
+    ],
+    "hooks": [
+      {
+        "event": "PostToolUse",
+        "matcher": "Bash:git push.*"
+      },
+      {
+        "event": "PreToolUse",
+        "matcher": "Bash:gh pr create.*"
+      }
+    ]
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/prs/<pr-id>/engineering/",
+    ".agents/state/reviews/<pr-id>/engineering/"
+  ],
+  "connector_dependencies": [
+    "connector-github"
+  ],
+  "methodology_skills_referenced": [
+    "methodology.plan-work",
+    "methodology.tdd",
+    "methodology.verify",
+    "methodology.clarify"
+  ],
+  "permissions_required": [
+    {
+      "scope": "git:write",
+      "risk_tier": "medium",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "git:review",
+      "risk_tier": "low",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "github:pr:write",
+      "risk_tier": "medium",
+      "approval_policy": "auto"
+    }
+  ],
+  "data_classes_handled": [
+    "internal",
+    "confidential"
+  ],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {
+    "notice_period_days": 90
+  },
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

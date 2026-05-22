@@ -1,0 +1,430 @@
+#!/usr/bin/env bash
+# init-plugin — scaffold a new Plugin Package that passes `conformance validate`.
+#
+# Usage:
+#   init-plugin <name> --type capability|methodology [--owner <team>]
+#                       [--bundle <bundle-id>] [--interface <id>] [--out <dir>]
+#
+# Output: plugins/<name>/ (or <out>/<name>/) populated with:
+#   .claude-plugin/plugin.json
+#   .cortex/manifest.json
+#   .cortex/conformance.yaml          # one golden + one adversarial stub
+#   skills/<sample-skill>/SKILL.md        # frontmatter pre-populated
+#   agents/<sample-subagent>.md           # capability only — with §6.13 note
+#   commands/<sample-command>.md
+#   hooks/hooks.json                      # empty
+#
+# Required behavior (per ROADMAP.md):
+#   - Output passes `conformance validate` immediately after generation.
+#   - --type methodology forbids capability fields, sets type/produces_authoritative_artifacts.
+#   - --type capability pre-declares methodology@^x.y.z dependency.
+
+set -euo pipefail
+
+if [[ -z "${CORTEX_HOME:-}" ]]; then
+  CORTEX_HOME="$(cd "$(dirname "$0")/../.." && pwd)"
+fi
+
+usage() {
+  cat <<'EOF'
+init-plugin — scaffold a Plugin Package that passes conformance validate
+
+Usage:
+  init-plugin <name> --type capability|methodology [options]
+
+Options:
+  --type capability|methodology   (required)
+  --owner <team-name>             default: "Internal DevTools"
+  --bundle <bundle-id>            (capability only) default: <name>-bundle
+  --interface <capability-id>     (capability only) default: do<Name>
+  --out <dir>                     default: $CORTEX_HOME/plugins
+  --help                          print this
+
+Examples:
+  init-plugin product --type capability --bundle product-definition --interface draftPRD
+  init-plugin observability --type capability
+  init-plugin debug --type methodology
+EOF
+}
+
+name=""
+type=""
+owner="Internal DevTools"
+bundle=""
+interface=""
+out_dir=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --help|-h) usage; exit 0;;
+    --type)      type="$2"; shift 2;;
+    --owner)     owner="$2"; shift 2;;
+    --bundle)    bundle="$2"; shift 2;;
+    --interface) interface="$2"; shift 2;;
+    --out)       out_dir="$2"; shift 2;;
+    --*) echo "init-plugin: unknown flag: $1" >&2; usage; exit 2;;
+    *)
+      if [[ -z "$name" ]]; then name="$1"; else
+        echo "init-plugin: unexpected positional: $1" >&2; exit 2
+      fi
+      shift
+      ;;
+  esac
+done
+
+[[ -n "$name" ]] || { echo "init-plugin: missing <name>" >&2; usage; exit 2; }
+case "$type" in
+  capability|methodology) ;;
+  "") echo "init-plugin: --type is required" >&2; usage; exit 2;;
+  *)  echo "init-plugin: invalid --type: $type (must be capability|methodology)" >&2; exit 2;;
+esac
+
+if [[ "$name" =~ ^cortex- ]]; then
+  echo "init-plugin: plugin name '$name' uses the 'cortex-' prefix; names are bare per AGENTS.md" >&2
+  exit 2
+fi
+if [[ ! "$name" =~ ^[a-z][a-z0-9-]*$ ]]; then
+  echo "init-plugin: plugin name '$name' must be lowercase kebab-case" >&2
+  exit 2
+fi
+
+[[ -n "$out_dir" ]] || out_dir="$CORTEX_HOME/plugins"
+plugin_dir="$out_dir/$name"
+
+if [[ -e "$plugin_dir" ]]; then
+  echo "init-plugin: target already exists: $plugin_dir" >&2
+  exit 1
+fi
+
+# Title-case helpers.
+title_case_name="$(echo "$name" | sed -E 's/(^|-)([a-z])/ \U\2/g' | sed -E 's/^ //')"
+camel_name="$(echo "$name" | awk -F- '{for(i=1;i<=NF;i++){if(i==1){printf "%s",$i}else{printf "%s%s",toupper(substr($i,1,1)),substr($i,2)}}}')"
+
+if [[ "$type" == "capability" ]]; then
+  [[ -n "$bundle" ]]    || bundle="${name}-bundle"
+  [[ -n "$interface" ]] || interface="do${camel_name^}"
+fi
+
+echo "Scaffolding $type plugin '$name' at $plugin_dir..."
+
+mkdir -p "$plugin_dir/.claude-plugin" "$plugin_dir/.cortex/capability-contracts"
+mkdir -p "$plugin_dir/skills/sample" "$plugin_dir/hooks/scripts"
+if [[ "$type" == "capability" ]]; then
+  mkdir -p "$plugin_dir/agents" "$plugin_dir/commands"
+fi
+
+# ------------------------------------------------------------------------------
+# .claude-plugin/plugin.json
+# ------------------------------------------------------------------------------
+case "$type" in
+  capability)
+    cat > "$plugin_dir/.claude-plugin/plugin.json" <<EOF
+{
+  "name": "$name",
+  "displayName": "Cortex — $title_case_name",
+  "version": "0.1.0",
+  "description": "TODO: short single-line description of $name.",
+  "author": {"name": "$owner"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "$name"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^0.1.0"}
+  ]
+}
+EOF
+    ;;
+  methodology)
+    cat > "$plugin_dir/.claude-plugin/plugin.json" <<EOF
+{
+  "name": "$name",
+  "displayName": "Cortex — $title_case_name (methodology)",
+  "version": "0.1.0",
+  "description": "TODO: short single-line description of methodology skill set.",
+  "author": {"name": "$owner"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "methodology", "$name"],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": []
+}
+EOF
+    ;;
+esac
+
+# ------------------------------------------------------------------------------
+# .cortex/manifest.json
+# ------------------------------------------------------------------------------
+case "$type" in
+  capability)
+    cat > "$plugin_dir/.cortex/manifest.json" <<EOF
+{
+  "\$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "$name",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "TODO: short description.",
+  "bundle_contracts_touched": ["$bundle"],
+  "capability_interfaces_implemented": [
+    {"id": "$interface", "version": "1", "schema_in": "TODO@v1", "schema_out": "TODO@v1"}
+  ],
+  "artifacts_authored": ["TODO"],
+  "artifacts_consumed": ["TODO"],
+  "surfaces": {
+    "skills": ["sample"],
+    "subagents": ["sample-worker"],
+    "slash_commands": ["/${name}-sample"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/${name}/<artifact-id>/$name/"
+  ],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": ["methodology.verify"],
+  "permissions_required": [
+    {"scope": "fs:read", "risk_tier": "low", "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["internal"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}
+EOF
+    # Capability-contract stub.
+    cat > "$plugin_dir/.cortex/capability-contracts/${interface}.md" <<EOF
+---
+capability_interface_id: $interface
+version: 1
+bundle_contract_id: $bundle
+schema_in: TODO@v1
+schema_out: TODO@v1
+---
+
+# ${interface}@v1
+
+TODO: describe the capability — inputs, outputs, per-path ownership, methodology
+composition (inline), non-functional contract, failure modes, golden + adversarial
+fixture sketches.
+EOF
+    ;;
+  methodology)
+    cat > "$plugin_dir/.cortex/manifest.json" <<EOF
+{
+  "\$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "$name",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "TODO: short description of methodology skill set.",
+  "bundle_contracts_touched": [],
+  "capability_interfaces_implemented": [],
+  "artifacts_authored": [],
+  "artifacts_consumed": [],
+  "surfaces": {
+    "skills": ["sample"],
+    "subagents": [],
+    "slash_commands": [],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/methodology/sample/"
+  ],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": [],
+  "permissions_required": [],
+  "data_classes_handled": ["internal"],
+  "risk_tier": "low",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": [],
+  "packaging_exception": {
+    "reason": "Zero Bundle Contracts — methodology skill set. Per SPEC.md",
+    "produces_authoritative_artifacts": false
+  }
+}
+EOF
+    ;;
+esac
+
+# ------------------------------------------------------------------------------
+# skills/sample/SKILL.md
+# ------------------------------------------------------------------------------
+case "$type" in
+  capability)
+    cat > "$plugin_dir/skills/sample/SKILL.md" <<EOF
+---
+name: ${name}.sample
+description: |
+  **Use when:** TODO — describe the concrete triggers (intents, slash commands,
+  prior artifact states) that should route to this skill.
+
+  **Do NOT use when:** TODO — name the neighboring skills the user might be
+  reaching for instead.
+
+  **Inputs:** TODO@v1 (artifact id or in-context body).
+  **Outputs:** TODO@v1 written to \`.agents/state/${name}/<id>/${name}/\`.
+type: capability
+produces_authoritative_artifacts: true
+capability_interface_id: $interface
+bundle_contract_id: $bundle
+visibility: public
+---
+
+# sample
+
+TODO: replace this placeholder with the actual procedure.
+
+## Procedure
+
+1. **Read context.** TODO.
+2. **Verify.** Invoke \`methodology.verify\` inline before promoting any
+   artifact from \`draft\` to \`proposed\`. Read the methodology SKILL.md in
+   your current context and follow it; do NOT Task-dispatch a subagent.
+3. **Write the artifact.** \`.agents/state/${name}/<id>/${name}/artifact.json\`.
+4. **Announce.** Plain-prose summary; no \`[Plugin:Component]\` prefix.
+
+## Per-path ownership
+
+You write only under \`.agents/state/${name}/<id>/${name}/\`. PEP enforces.
+EOF
+    ;;
+  methodology)
+    cat > "$plugin_dir/skills/sample/SKILL.md" <<EOF
+---
+name: ${name}.sample
+description: |
+  **Use when:** TODO — name the conditions under which a capability skill should
+  compose this methodology inline.
+
+  **Do NOT use when:** TODO — clarify which capability skills should NOT route
+  to this methodology.
+
+  **Inputs:** TODO (free text or named artifact reference).
+  **Outputs:** ephemeral. May optionally write notes to
+  \`.agents/state/methodology/${name}/<session>.md\`.
+type: methodology
+produces_authoritative_artifacts: false
+visibility: public
+---
+
+# sample (methodology)
+
+TODO: replace this placeholder with the actual procedure.
+
+## Procedure
+
+1. **Restate the topic** in one sentence.
+2. **TODO** — define the methodology steps. Each step is mechanical and
+   observable.
+3. **Hard refusals.** Methodology skills MUST NOT write authoritative
+   artifacts; PEP enforces. If the user asks for a specific artifact, refuse
+   and hand off by name to the relevant capability skill.
+
+## Inline composition
+
+This skill is composed inline by capability skills — they read this SKILL.md in
+their current context and follow it. No subagent dispatch (subagents cannot
+nest; see SPEC.md).
+EOF
+    ;;
+esac
+
+# ------------------------------------------------------------------------------
+# agents/sample-worker.md (capability only)
+# ------------------------------------------------------------------------------
+if [[ "$type" == "capability" ]]; then
+  cat > "$plugin_dir/agents/sample-worker.md" <<EOF
+---
+name: sample-worker
+description: |
+  **Use when:** dispatched by /${name}-sample or by the parent workflow executor to
+  execute the ${name}.sample skill on a workspace.
+  **Do NOT use when:** TODO.
+  **Inputs:** TODO@v1.
+  **Outputs:** TODO@v1.
+model: sonnet
+tools: [Read, Grep, Glob, Bash, Edit, Write]
+---
+
+You are the \`sample-worker\` subagent. Apply the procedure in \`${name}.sample\`.
+
+## Subagent runtime constraints (per SPEC.md)
+
+- Cannot dispatch further subagents.
+- Methodology composition is inline.
+- Return one final message.
+EOF
+fi
+
+# ------------------------------------------------------------------------------
+# commands/sample.md (capability only)
+# ------------------------------------------------------------------------------
+if [[ "$type" == "capability" ]]; then
+  cat > "$plugin_dir/commands/sample.md" <<EOF
+---
+name: ${name}-sample
+description: |
+  **Use when:** the user types \`/${name}-sample\` to invoke ${name}.sample
+  directly without going through a multi-bundle workflow.
+  **Do NOT use when:** TODO.
+  **Inputs:** TODO.
+  **Outputs:** TODO@v1.
+argument-hint: "[input]"
+allowed-tools: [Task, Read, Bash]
+---
+
+# /${name}-sample
+
+Dispatch \`sample-worker\` against the user's argument.
+EOF
+fi
+
+# ------------------------------------------------------------------------------
+# hooks/hooks.json
+# ------------------------------------------------------------------------------
+cat > "$plugin_dir/hooks/hooks.json" <<EOF
+{
+  "hooks": {}
+}
+EOF
+
+# ------------------------------------------------------------------------------
+# .cortex/conformance.yaml — one golden + one adversarial stub
+# ------------------------------------------------------------------------------
+cat > "$plugin_dir/.cortex/conformance.yaml" <<EOF
+# Conformance suite for the \`${name}\` plugin.
+# TODO: extend the suite — every plugin should ship ≥ 5 golden + ≥ 4 adversarial
+# fixtures before P1 admission.
+
+version: 1
+plugin: ${name}
+
+golden:
+  - id: sample-golden
+    capability: ${interface:-sample}
+    prompt: |
+      TODO: describe a clean input and the expected output shape.
+    expects:
+      state_equals: proposed
+
+adversarial:
+  - id: sample-adversarial
+    kind: cross_path_write
+    prompt: |
+      TODO: describe an attempt to misuse the skill — cross-bundle write,
+      methodology writing an authoritative artifact, prompt injection.
+    expects:
+      pep_blocks_observed_ge: 1
+EOF
+
+echo "Scaffolded $plugin_dir."
+echo ""
+echo "Next steps:"
+echo "  1. Replace every TODO in the generated files with the real content."
+echo "  2. Run \`$CORTEX_HOME/platform/conformance/conformance validate $plugin_dir\` — should pass out of the box."
+echo "  3. Author ≥ 5 golden + ≥ 4 adversarial fixtures before P1 admission."
+echo "  4. Add the plugin to \`.claude-plugin/marketplace.json\`."

@@ -1,0 +1,41 @@
+{
+  "$comment": "Managed baseline settings the platform installs on the user's machine (typically at ~/.claude/managed-settings.json, applied org-wide so plugin authors cannot bypass them). Registers the platform-owned hooks. Per SPEC.md (non-bypassable invariants).",
+  "env": {
+    "CORTEX_HOME": "${CORTEX_HOME:-${HOME}/.claude-plugin/cortex}"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {"type": "command", "command": "bash \"${CORTEX_HOME}/platform/hooks/session-start.sh\"", "timeout": 5}
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {"type": "command", "command": "bash \"${CORTEX_HOME}/platform/hooks/session-end.sh\"", "timeout": 30}
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {"type": "command", "command": "bash \"${CORTEX_HOME}/platform/hooks/permission-pep.sh\"", "timeout": 2}
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {"type": "command", "command": "bash \"${CORTEX_HOME}/platform/hooks/audit-postuse.sh\"", "timeout": 2},
+          {"type": "command", "command": "bash \"${CORTEX_HOME}/platform/hooks/budget-track.sh\"", "timeout": 2}
+        ]
+      }
+    ]
+  }
+}

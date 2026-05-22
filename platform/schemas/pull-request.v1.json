@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/pull-request.v1.json",
+  "title": "PullRequest",
+  "description": "The authoritative artifact written by engineering.propose-pr (capability implementChange@v1). State transitions follow ArtifactEnvelope (§10.2).",
+  "type": "object",
+  "required": ["pr_id", "owning_bundle", "branch", "state", "user_story_ref", "diff_summary"],
+  "properties": {
+    "pr_id": {"type": "string"},
+    "owning_bundle": {"type": "string", "const": "code-authoring"},
+    "branch": {"type": "string", "pattern": "^(feat|fix|refactor)/[a-z0-9._-]+$"},
+    "base_branch": {"type": "string", "default": "main"},
+    "commit_sha": {"type": "string"},
+    "user_story_ref": {"type": "string", "description": "Path or id of the UserStory@v1 that motivated this PR."},
+    "prd_ref": {"type": ["string", "null"]},
+    "adr_refs": {"type": "array", "items": {"type": "string"}},
+    "diff_summary": {
+      "type": "object",
+      "properties": {
+        "files_changed": {"type": "integer"},
+        "insertions": {"type": "integer"},
+        "deletions": {"type": "integer"}
+      }
+    },
+    "code_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "change_type"],
+        "properties": {
+          "path": {"type": "string"},
+          "change_type": {"enum": ["added", "modified", "deleted", "renamed"]}
+        }
+      }
+    },
+    "test_todos": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Test stubs the implementer flagged for quality.write-unit-test to pick up. The implementer does NOT write tests itself."
+    },
+    "methodology_invoked": {"type": "array", "items": {"type": "string"}},
+    "state": {"enum": ["draft", "proposed", "approved", "superseded", "revoked", "failed", "requires_human"]},
+    "trust_label": {"enum": ["trusted_first_party", "trusted_internal", "untrusted_user_content", "untrusted_external"]},
+    "author_principal_id": {"type": "string"},
+    "failure_reason": {"type": ["string", "null"]}
+  }
+}

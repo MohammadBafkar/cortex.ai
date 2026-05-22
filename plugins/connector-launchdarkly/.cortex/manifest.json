@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "connector-launchdarkly",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "Connector wrapping LaunchDarkly's MCP server. Exposes feature-flag + experiment read/write. Used by release-operate.release (staged rollouts) + data.run-experiment.",
+  "bundle_contracts_touched": [],
+  "capability_interfaces_implemented": [],
+  "artifacts_authored": [],
+  "artifacts_consumed": [],
+  "surfaces": {
+    "skills": [],
+    "subagents": [],
+    "slash_commands": [],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": [],
+  "permissions_required": [
+    {
+      "scope": "ld:flags:read",
+      "risk_tier": "low",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "ld:flags:write",
+      "risk_tier": "medium",
+      "approval_policy": "auto"
+    },
+    {
+      "scope": "ld:flags:rollout",
+      "risk_tier": "high",
+      "approval_policy": "hitl"
+    },
+    {
+      "scope": "ld:experiments:write",
+      "risk_tier": "medium",
+      "approval_policy": "hitl"
+    }
+  ],
+  "data_classes_handled": [
+    "internal",
+    "confidential"
+  ],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {
+    "notice_period_days": 90
+  },
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": [],
+  "packaging_exception": {
+    "reason": "Connector plugin \u2014 exposes external MCP tools, no Capability Interfaces. Per CONNECTORS.md.",
+    "produces_authoritative_artifacts": false
+  }
+}

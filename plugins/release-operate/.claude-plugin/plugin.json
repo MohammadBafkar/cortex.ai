@@ -1,0 +1,15 @@
+{
+  "name": "release-operate",
+  "displayName": "Cortex — Release & Operate",
+  "version": "1.0.0",
+  "description": "Release + Observability + Incident + FinOps. Emits DORA metrics (deploy frequency, lead time, change failure rate, MTTR, reliability).",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "release", "observability", "incident", "finops", "dora"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"}
+  ]
+}

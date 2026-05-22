@@ -1,0 +1,12 @@
+{
+  "name": "connector-kubernetes",
+  "displayName": "cortex.ai — Connector: Kubernetes",
+  "version": "0.1.0",
+  "description": "Connector plugin wrapping a kubectl-bridge MCP server. Exposes typed tools for pod, deployment, namespace, and event introspection; mutating ops are scoped to namespace-tier. Used by platform, release-operate, and infra-* capability plugins.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["connector", "kubernetes", "k8s", "kubectl", "mcp"],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

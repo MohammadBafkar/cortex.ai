@@ -1,0 +1,14 @@
+{
+  "$comment": "MCP server reference for the Atlassian Jira connector. Wraps Atlassian's official Remote MCP via mcp-remote bridge. Capability plugins (product, release-operate, content) call typed tools (createIssue, transitionIssue, addLink, searchJql) from their skill bodies. Cloud ID / site URL is passed at install time via the connector secret-binder.",
+  "mcpServers": {
+    "jira": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/sse"],
+      "env": {
+        "ATLASSIAN_CLOUD_ID": "${secret:atlassian-cloud-id}",
+        "ATLASSIAN_TOKEN":    "${secret:atlassian-token}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

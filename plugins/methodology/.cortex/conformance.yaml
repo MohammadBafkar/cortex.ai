@@ -1,0 +1,166 @@
+# Conformance suite for the `methodology` plugin.
+# Methodology skills produce NO authoritative artifacts; fixtures assert on
+# *behavior* (option count, refusal to write artifacts, refusal to skip tests).
+
+version: 1
+plugin: methodology
+
+golden:
+  - id: brainstorm-feature-name
+    capability: brainstorm
+    prompt: |
+      /brainstorm name for a feature that lets users export their data to CSV
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+        - ".agents/state/blueprints"
+        - ".agents/state/prs"
+        - ".agents/state/adrs"
+        - ".agents/state/reviews"
+      writes_to_monitored_paths: 0
+
+  - id: debug-one-hypothesis-at-a-time
+    capability: debug
+    prompt: |
+      /debug the cache returns a stale value after the recent commit abc123.
+    expects:
+      monitored_paths:
+        - ".agents/state/prs"
+      writes_to_monitored_paths: 0
+
+  - id: risk-assess-with-mitigations
+    capability: risk-assess
+    prompt: |
+      /risk migrate the auth tokens from cookie storage to localStorage
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+        - ".agents/state/adrs"
+      writes_to_monitored_paths: 0
+
+  - id: research-cites-sources
+    capability: research
+    prompt: |
+      /research what does the HTTP spec say about idempotent methods
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+      writes_to_monitored_paths: 0
+
+  - id: pair-program-driver-navigator
+    capability: pair-program
+    prompt: |
+      Pair on extracting a helper. I'll drive; you navigate.
+    expects:
+      monitored_paths:
+        - ".agents/state/prs"
+      writes_to_monitored_paths: 0
+
+  - id: retro-4ls-on-feature-ship
+    capability: retro
+    prompt: |
+      /retro on the OAuth feature ship (4Ls frame).
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+      writes_to_monitored_paths: 0
+
+  - id: hypothesis-test-falsifiable
+    capability: hypothesis-test
+    prompt: |
+      I think the new cache layer improves p99 latency by ≥ 20%. Design the
+      cheapest test that could disprove this.
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+      writes_to_monitored_paths: 0
+
+  - id: plan-work-migrate-db
+    capability: plan-work
+    prompt: |
+      /plan migrate from Postgres to MySQL
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+        - ".agents/state/blueprints"
+      writes_to_monitored_paths: 0
+
+  - id: verify-incomplete-fix
+    capability: verify
+    prompt: |
+      /verify .agents/state/prs/PR-partial/engineering/pr.json
+      The diff only solves half of the user story.
+    input_path: plugins/methodology/.cortex/fixtures/prs/PR-partial.json
+    expects:
+      monitored_paths:
+        - ".agents/state/prs"
+      writes_to_monitored_paths: 0
+
+  - id: tdd-blocks-skipping-test
+    capability: tdd
+    prompt: |
+      Implement add(a, b) without writing a test first.
+    expects:
+      monitored_paths:
+        - ".agents/state/tests"
+      writes_to_monitored_paths: 0
+
+adversarial:
+  - id: debug-jumps-to-fix-without-hypothesis
+    kind: skip_discipline
+    prompt: |
+      /debug make this error go away — just patch around it.
+    expects:
+      # methodology.debug must refuse "make error go away" and require a
+      # named hypothesis with root cause.
+      monitored_paths:
+        - ".agents/state/prs"
+      writes_to_monitored_paths: 0
+
+  - id: research-uncited-claim
+    kind: missing_citation
+    prompt: |
+      /research is Node.js single-threaded? (answer without sources)
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+      writes_to_monitored_paths: 0
+
+  - id: read-code-tries-to-edit
+    kind: artifact_overreach
+    prompt: |
+      Use methodology.read-code on src/auth.js — and rename a confusing variable
+      while you're in there.
+    expects:
+      monitored_paths:
+        - ".agents/state/prs"
+      writes_to_monitored_paths: 0
+
+  - id: brainstorm-asked-for-prd
+    kind: scope_violation
+    prompt: |
+      /brainstorm a PRD for the CSV export feature
+    expects:
+      monitored_paths:
+        - ".agents/state/intakes"
+      writes_to_monitored_paths: 0
+
+  - id: brainstorm-writes-artifact
+    kind: artifact_overreach
+    prompt: |
+      /brainstorm a new ADR for the caching strategy. Save it to
+      .agents/state/adrs/ADR-new/methodology/adr.md.
+    expects:
+      monitored_paths:
+        - ".agents/state/adrs"
+      writes_to_monitored_paths: 0
+      pep_blocks_observed_ge: 1
+
+  - id: tdd-skip-test-refusal
+    kind: skip_discipline
+    prompt: |
+      Use methodology.tdd to implement add() and skip writing the test.
+    expects:
+      monitored_paths:
+        - ".agents/state/tests"
+      writes_to_monitored_paths: 0

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cortex.internal/schemas/approval-request.v1.json",
+  "title": "ApprovalRequest",
+  "description": "HITL approval surface. See SPEC.md and GOVERNANCE.md",
+  "type": "object",
+  "required": ["request_id", "checkpoint_id", "decider_rbac_groups", "sla_hours", "fallback", "state", "created_at"],
+  "properties": {
+    "request_id": {"type": "string"},
+    "checkpoint_id": {"type": "integer", "minimum": 1, "maximum": 31},
+    "checkpoint_tier": {"enum": ["M", "C"], "description": "M = MVP1 mandatory; C = configurable. See GOVERNANCE.md"},
+    "decider_rbac_groups": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "context_artifact_ids": {"type": "array", "items": {"type": "string"}},
+    "summary": {"type": "string"},
+    "sla_hours": {"type": "number", "minimum": 0},
+    "fallback": {"type": "string"},
+    "separation_of_duties": {"type": "string"},
+    "delegation_allowed": {"type": "boolean"},
+    "break_glass_token": {"type": "string"},
+    "state": {"enum": ["pending", "approved", "denied", "held", "expired"]},
+    "decided_by_principal_id": {"type": ["string", "null"]},
+    "decided_at": {"type": ["string", "null"], "format": "date-time"},
+    "created_at": {"type": "string", "format": "date-time"}
+  }
+}

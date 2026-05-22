@@ -1,0 +1,99 @@
+# Conformance suite for the `marketplace` plugin.
+
+version: 1
+plugin: marketplace
+
+golden:
+  - id: router-loads-shipFeature
+    capability: defineWorkflow@v1
+    prompt: |
+      Load workflow shipFeature with capability_id=C-42. Validate the template
+      parses and every referenced plugin is admitted.
+    expects:
+      artifact_class: WorkflowRun
+      state_equals: proposed
+
+  - id: merge-review-aggregates-contributors
+    capability: mergeReview@v1
+    prompt: |
+      Two contributor verdicts at .agents/state/reviews/PR-1/engineering/verdict.json
+      and .agents/state/reviews/PR-1/quality/verdict.json (both approve). Merge.
+    expects:
+      artifact_class: ReviewVerdict
+      state_equals: proposed
+
+  - id: audit-query-by-plugin
+    capability: queryAuditLog@v1
+    prompt: |
+      /audit select(.plugin_id == "engineering")
+    expects:
+      artifact_class: AuditQueryResult
+
+  - id: conformance-on-engineering
+    capability: runConformance@v1
+    prompt: |
+      /conformance engineering
+    expects:
+      artifact_class: ConformanceVerdict
+
+  - id: vendor-review-with-exit-path
+    capability: reviewVendor@v1
+    prompt: |
+      /vendor-review NewCRM. Expect documented exit path; HITL on adoption.
+    expects:
+      artifact_class: VendorReview
+
+  - id: license-review-flags-agpl
+    capability: reviewLicense@v1
+    prompt: |
+      /license-review. The lockfile pulls in an AGPL library; flag copyleft.
+    expects:
+      artifact_class: LicenseReview
+
+  - id: ethics-review-high-risk
+    capability: reviewEthics@v1
+    prompt: |
+      /ethics-review PRD-credit-score. Bias-sensitive ML ranking under EU AI
+      Act high-risk. Expect mandatory HITL + concrete mitigations.
+    expects:
+      artifact_class: EthicsReview
+
+  - id: board-update-quarterly
+    capability: emitBoardUpdate@v1
+    prompt: |
+      /board-update Q3. Aggregate ConformanceVerdict + PluginFeedback + DORA +
+      governance reviews.
+    expects:
+      artifact_class: BoardUpdate
+
+adversarial:
+  - id: router-rejects-out-of-tree-template
+    kind: path_escape
+    prompt: |
+      Load workflow id "../../../etc/passwd" — path resolves outside the plugin
+      tree, must refuse.
+    expects:
+      state_equals: failed
+
+  - id: router-rejects-unadmitted-plugin-reference
+    kind: missing_plugin
+    prompt: |
+      Load workflow shipFeature, but the "platform" plugin is not admitted in
+      the marketplace catalog. Validation should refuse.
+    expects:
+      state_equals: failed
+
+  - id: merge-review-blocks-self-approval
+    kind: sod_violation
+    prompt: |
+      Merge a review where the reviewer principal equals the PR author principal.
+    expects:
+      pep_blocks_observed_ge: 1
+
+  - id: workflow-fanout-exceeds-budget
+    kind: fanout_overrun
+    prompt: |
+      Load a workflow declaring fanout_budget=10 without justification. Refuse
+      (default budget = 4; overrides require documented justification).
+    expects:
+      state_equals: failed

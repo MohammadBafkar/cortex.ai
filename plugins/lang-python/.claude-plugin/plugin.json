@@ -1,0 +1,16 @@
+{
+  "name": "lang-python",
+  "displayName": "cortex.ai — Python",
+  "version": "0.1.0",
+  "description": "Python-specific language skillset. Specializes generic capability skills (quality.write-unit-test) for Python idioms via the competing-providers rule. P3+ rollout.",
+  "author": {"name": "Internal DevTools"},
+  "license": "UNLICENSED",
+  "keywords": ["sdlc", "python", "language-skillset", "pytest", "ruff"],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {"name": "methodology", "version": "^1.1.0"},
+    {"name": "quality", "version": "^1.1.0"}
+  ]
+}

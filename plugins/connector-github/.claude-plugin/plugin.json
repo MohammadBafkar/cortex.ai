@@ -1,0 +1,19 @@
+{
+  "name": "connector-github",
+  "displayName": "cortex.ai — Connector: GitHub",
+  "version": "0.2.0",
+  "description": "Connector plugin wrapping GitHub's official MCP server. Exposes typed read/write tools for issues, PRs, branches, commits, releases. Used by engineering, marketplace (audit cross-link), release-operate.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "connector",
+    "github",
+    "scm",
+    "mcp"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

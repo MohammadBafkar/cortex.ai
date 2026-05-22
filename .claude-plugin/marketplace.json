@@ -1,0 +1,87 @@
+{
+  "$schema": "https://claude.com/marketplace/marketplace.schema.v1.json",
+  "name": "cortex",
+  "displayName": "cortex.ai",
+  "description": "Internal coding-agent capability marketplace: routing, implementation, testing, audit, and conformance for the V1 workflow spine.",
+  "version": "0.2.0",
+  "owner": {
+    "name": "Internal DevTools",
+    "email": "devtools@your-org.example"
+  },
+  "metadata": {
+    "pluginRoot": "./plugins",
+    "defaultInstall": [
+      "marketplace",
+      "methodology",
+      "engineering",
+      "quality",
+      "platform",
+      "connector-github",
+      "connector-github-actions"
+    ],
+    "incubatingPolicy": "Plugin directories not listed here are prototypes and are not published by default."
+  },
+  "plugins": [
+    {
+      "name": "marketplace",
+      "source": "./plugins/marketplace",
+      "version": "0.2.0",
+      "category": "platform",
+      "tags": ["mvp", "routing", "conformance", "audit"],
+      "strict": true,
+      "depends_on": ["methodology"]
+    },
+    {
+      "name": "methodology",
+      "source": "./plugins/methodology",
+      "version": "0.2.0",
+      "category": "methodology",
+      "tags": ["mvp", "planning", "tdd", "verify"],
+      "strict": true
+    },
+    {
+      "name": "engineering",
+      "source": "./plugins/engineering",
+      "version": "0.2.0",
+      "category": "sdlc",
+      "tags": ["mvp", "implementation", "review"],
+      "strict": true,
+      "depends_on": ["methodology", "connector-github"]
+    },
+    {
+      "name": "quality",
+      "source": "./plugins/quality",
+      "version": "0.2.0",
+      "category": "sdlc",
+      "tags": ["mvp", "unit-tests"],
+      "strict": true,
+      "depends_on": ["methodology", "engineering"]
+    },
+    {
+      "name": "platform",
+      "source": "./plugins/platform",
+      "version": "0.2.0",
+      "category": "platform",
+      "tags": ["mvp", "hooks", "pipeline", "audit"],
+      "strict": true,
+      "depends_on": ["methodology", "connector-github-actions"]
+    },
+    {
+      "name": "connector-github",
+      "source": "./plugins/connector-github",
+      "version": "0.2.0",
+      "category": "connector",
+      "tags": ["mvp", "connector", "github", "scm"],
+      "strict": true
+    },
+    {
+      "name": "connector-github-actions",
+      "source": "./plugins/connector-github-actions",
+      "version": "0.2.0",
+      "category": "connector",
+      "tags": ["mvp", "connector", "github-actions", "ci"],
+      "strict": true
+    }
+  ]
+}
+

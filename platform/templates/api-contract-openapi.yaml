@@ -1,0 +1,130 @@
+# Template: OpenAPI 3.1 API contract.
+# Authored by: architecture.define-api.
+# Required: every operation has summary + parameters + responses (including error
+# responses with codes); every schema field has a type and description.
+# Replace <placeholders> and prune unused sections before committing.
+
+openapi: 3.1.0
+info:
+  title: <Service Name>
+  version: 1.0.0
+  description: |
+    <One paragraph describing the API's purpose and primary consumers.>
+  contact:
+    name: <owning team>
+    email: <team-email>
+  license:
+    name: UNLICENSED
+
+servers:
+  - url: https://api.example.com/v1
+    description: production
+  - url: https://api-staging.example.com/v1
+    description: staging
+
+# Standard error envelope reused across operations.
+components:
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Stable, machine-readable error identifier.
+          example: validation_failed
+        message:
+          type: string
+          description: Human-readable error description.
+        details:
+          type: object
+          description: Optional structured context.
+          additionalProperties: true
+
+    # <add per-resource schemas here>
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Request validation failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Credential is valid but lacks the required scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    RateLimited:
+      description: Rate limit exceeded.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds before the client should retry.
+
+security:
+  - BearerAuth: []
+
+paths:
+  /<resource>:
+    get:
+      operationId: list<Resource>
+      summary: <one-line summary>
+      description: |
+        <Longer description: what it returns, pagination behavior, side effects.>
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+          description: Max items per page.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/<Resource>'
+                  next_cursor:
+                    type: string
+                    nullable: true
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+# Versioning policy:
+#   - v1, v2, ... in the URL path or via Accept header.
+#   - Breaking changes require a new major version + a deprecation plan in
+#     the change log. Old version supported for ≥ 90 days post-cutover.

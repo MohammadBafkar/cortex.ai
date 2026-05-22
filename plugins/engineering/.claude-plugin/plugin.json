@@ -1,0 +1,29 @@
+{
+  "name": "engineering",
+  "displayName": "Cortex — Engineering",
+  "version": "0.2.0",
+  "description": "Cortex V1 engineering plugin for implementation artifacts and code review.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "cortex",
+    "engineering",
+    "implementation",
+    "code-review"
+  ],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json",
+  "dependencies": [
+    {
+      "name": "methodology",
+      "version": "^0.2.0"
+    },
+    {
+      "name": "connector-github",
+      "version": "^0.2.0"
+    }
+  ]
+}

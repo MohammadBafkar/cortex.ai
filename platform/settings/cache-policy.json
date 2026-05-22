@@ -1,0 +1,46 @@
+{
+  "$comment": "Prompt-cache breakpoint placement policy. Per SPEC.md: four fixed breakpoints, plugin authors do not place them themselves. The conformance harness checks that nothing in a plugin's settings disturbs this layout.",
+  "version": 1,
+  "breakpoints": [
+    {
+      "position": 1,
+      "name": "system-prefix",
+      "ttl_minutes": 60,
+      "includes": [
+        "the canonical system prompt",
+        "the always-loaded methodology master skill",
+        "AGENTS.md / CLAUDE.md / repo-level instructions"
+      ]
+    },
+    {
+      "position": 2,
+      "name": "tool-and-mcp-definitions",
+      "ttl_minutes": 60,
+      "includes": [
+        "tool schemas",
+        "MCP server definitions for any always-loaded server"
+      ]
+    },
+    {
+      "position": 3,
+      "name": "active-capability-skill",
+      "ttl_minutes": 5,
+      "includes": [
+        "the body of the currently invoked SKILL.md"
+      ]
+    },
+    {
+      "position": 4,
+      "name": "conversation-prefix",
+      "ttl_minutes": 5,
+      "includes": [
+        "the conversation history before the current user turn"
+      ]
+    }
+  ],
+  "rules": [
+    "Plugin authors must NOT inject always-loaded content between breakpoints 2 and 3.",
+    "MCP servers default to alwaysLoad: false (per SPEC.md). Exceptions require justification in .cortex/manifest.json under mcp_servers_always_load.",
+    "Adding always-loaded content to the system prefix disturbs cache hits across all sessions. Use the active-capability-skill breakpoint instead."
+  ]
+}

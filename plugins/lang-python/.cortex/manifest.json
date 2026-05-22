@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "lang-python",
+  "version": "0.1.0",
+  "publisher": "internal-devtools",
+  "description": "Python language skillset. Specializes generic capability skills (quality.write-unit-test, engineering.propose-pr) for Python idioms — pytest, ruff, type annotations.",
+  "bundle_contracts_touched": ["lang-python"],
+  "capability_interfaces_implemented": [
+    {"id": "writePytestTest",       "version": "1", "schema_in": "PullRequest@v1", "schema_out": "TestSuite@v1"},
+    {"id": "lintWithRuff",          "version": "1", "schema_in": "PullRequest@v1", "schema_out": "LintReport@v1"},
+    {"id": "proposeTypeAnnotations","version": "1", "schema_in": "PullRequest@v1", "schema_out": "TypeAnnotationProposal@v1"}
+  ],
+  "artifacts_authored": ["TestSuite", "LintReport", "TypeAnnotationProposal"],
+  "artifacts_consumed": ["PullRequest", "UserStory"],
+  "surfaces": {
+    "skills": ["write-pytest-test", "lint-with-ruff", "propose-type-annotations"],
+    "subagents": ["pytest-author", "ruff-linter"],
+    "slash_commands": ["/pytest", "/ruff", "/types-py"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/langs/lang-python/<artifact-id>/"
+  ],
+  "connector_dependencies": [],
+  "methodology_skills_referenced": ["methodology.tdd", "methodology.verify", "methodology.read-code"],
+  "permissions_required": [
+    {"scope": "fs:write:tests",   "risk_tier": "low", "approval_policy": "auto"},
+    {"scope": "fs:read",          "risk_tier": "low", "approval_policy": "auto"},
+    {"scope": "test-runner:exec", "risk_tier": "low", "approval_policy": "auto"}
+  ],
+  "data_classes_handled": ["internal"],
+  "risk_tier": "medium",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 90},
+  "update_strategy": "patch:auto, minor:auto, major:approval",
+  "mcp_servers_always_load": []
+}

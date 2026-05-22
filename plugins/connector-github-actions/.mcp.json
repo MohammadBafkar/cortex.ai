@@ -1,0 +1,16 @@
+{
+  "$comment": "MCP server reference for the connector-github-actions connector. Capability plugins call the exposed typed tools by name from their skill bodies.",
+  "mcpServers": {
+    "github-actions": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@github/actions-mcp-server"
+      ],
+      "env": {
+        "GITHUB_TOKEN": "${secret:github-token}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}

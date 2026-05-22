@@ -1,0 +1,48 @@
+{
+  "$schema": "../../../platform/schemas/cortex-plugin-manifest.v1.json",
+  "name": "security",
+  "version": "1.0.0",
+  "publisher": "internal-devtools",
+  "description": "Security audits (SAST/SCA/SBOM/STRIDE), Privacy & Compliance (PIA, DPA, DSAR), Identity & Access (RBAC, MFA, access review).",
+  "bundle_contracts_touched": ["security", "privacy-compliance", "identity-access"],
+  "capability_interfaces_implemented": [
+    {"id": "auditVulns",   "version": "1", "schema_in": "PullRequest@v1",       "schema_out": ["SecurityFinding@v1[]", "SBOM@v1"]},
+    {"id": "threatModel",  "version": "1", "schema_in": "SystemDesignDoc@v1",   "schema_out": "ThreatModel@v1"},
+    {"id": "runPIA",       "version": "1", "schema_in": "PRD@v1",               "schema_out": "PrivacyImpactAssessment@v1"},
+    {"id": "reviewIAM",    "version": "1", "schema_in": "PermissionGrant@v1[]", "schema_out": "AccessReviewRecord@v1"},
+    {"id": "disclose",     "version": "1", "schema_in": "SecurityFinding@v1",   "schema_out": "Advisory@v1"}
+  ],
+  "artifacts_authored": ["SecurityFinding", "SBOM", "ThreatModel", "PrivacyImpactAssessment", "DataErasureRecord", "AccessReviewRecord", "Advisory"],
+  "artifacts_consumed": ["PullRequest", "SystemDesignDoc", "PRD", "PermissionGrant", "ReleaseRecord"],
+  "surfaces": {
+    "skills": ["audit-vulns", "threat-model", "run-pia", "review-iam"],
+    "subagents": ["security-auditor", "threat-modeler", "privacy-officer", "iam-reviewer"],
+    "slash_commands": ["/security-audit", "/threat-model", "/pia", "/access-review"],
+    "hooks": []
+  },
+  "workspace_state_paths_owned": [
+    ".agents/state/findings/security/<id>/security/",
+    ".agents/state/findings/privacy/<id>/security/",
+    ".agents/state/advisories/<id>/security/",
+    ".agents/state/iam/<id>/security/",
+    ".agents/state/reviews/<pr-id>/security/"
+  ],
+  "connector_dependencies": ["connector-snyk", "connector-semgrep", "connector-onetrust", "connector-vault"],
+  "methodology_skills_referenced": [
+    "methodology.research", "methodology.risk-assess", "methodology.verify",
+    "methodology.read-code", "methodology.decompose"
+  ],
+  "permissions_required": [
+    {"scope": "sast:run",         "risk_tier": "medium",       "approval_policy": "auto"},
+    {"scope": "sca:run",          "risk_tier": "medium",       "approval_policy": "auto"},
+    {"scope": "secrets:read",     "risk_tier": "high",         "approval_policy": "hitl"},
+    {"scope": "iam:review",       "risk_tier": "high",         "approval_policy": "hitl"},
+    {"scope": "pii:access",       "risk_tier": "irreversible", "approval_policy": "two-person"}
+  ],
+  "data_classes_handled": ["internal", "confidential", "pii_restricted"],
+  "risk_tier": "high",
+  "conformance_suite_ref": ".cortex/conformance.yaml",
+  "deprecation_policy": {"notice_period_days": 180},
+  "update_strategy": "patch:auto, minor:approval, major:approval",
+  "mcp_servers_always_load": []
+}

@@ -1,0 +1,21 @@
+{
+  "name": "connector-snyk",
+  "displayName": "cortex.ai \u2014 Connector: Snyk",
+  "version": "0.1.0",
+  "description": "Connector wrapping Snyk's MCP server. Exposes SAST + SCA + container scan APIs. Used by security.audit-vulns.",
+  "author": {
+    "name": "Internal DevTools"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "connector",
+    "snyk",
+    "security",
+    "sast",
+    "sca",
+    "mcp"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "dependencies": []
+}

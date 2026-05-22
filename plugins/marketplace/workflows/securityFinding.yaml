@@ -1,0 +1,76 @@
+# Security finding lifecycle — STUB. Requires security plugin (P1).
+# Maps to NIST SSDF RV.1–RV.3 (vulnerability response).
+
+id: securityFinding
+version: 1
+tier: P1
+status: stub
+description: |
+  Detect → triage → fix → verify → disclose. The hotfix and disclosure are
+  separate M-tier HITL checkpoints.
+required_plugins:
+  - security
+  - engineering
+  - quality
+  - platform
+  - content
+
+inputs:
+  - {name: finding_id, type: string, required: true}
+
+states:
+  - id: detect
+    plugin: security
+    skill: detect-vuln
+    writes: .agents/state/findings/security/${finding_id}/security/
+
+  - id: triage_severity
+    plugin: security
+    skill: triage-severity
+    gate: {require: [SecurityFinding]}
+    writes: .agents/state/findings/security/${finding_id}/security/triage.json
+
+  - id: implement_fix
+    plugin: engineering
+    skill: propose-pr
+    gate: {require: [SecurityFinding], state: triaged}
+    writes: .agents/state/prs/sec-${finding_id}/engineering/
+
+  - id: regression_test
+    plugin: quality
+    skill: write-unit-test
+    gate: {require: [PullRequest]}
+    writes: .agents/state/tests/sec-${finding_id}/quality/
+
+  - id: build
+    plugin: platform
+    skill: run-pipeline
+    gate: {require: [PullRequest, TestSuite]}
+    writes: .agents/state/runs/sec-${finding_id}/platform/run.json
+
+  - id: verify_fix
+    plugin: security
+    skill: verify-fix
+    gate: {require: [BuildArtifact]}
+    writes: .agents/state/findings/security/${finding_id}/security/verify.json
+
+  - id: disclose
+    plugin: content
+    skill: security-advisory
+    gate: {require: [SecurityFinding], state: verified}
+    writes: .agents/state/findings/security/${finding_id}/content/
+
+hitl_checkpoints:
+  - state: build
+    checkpoint_id: 3
+    tier: M
+    decider: rbac/security-leads ∩ service owner
+    sla_hours: 2
+  - state: disclose
+    checkpoint_id: 18
+    tier: C
+    decider: rbac/security-leads ∩ rbac/legal ∩ rbac/comms-leads
+    sla_hours: 24
+
+fanout_budget: 4
+parallel_writes: false

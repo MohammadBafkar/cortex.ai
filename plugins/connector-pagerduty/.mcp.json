@@ -1,0 +1,14 @@
+{
+  "$comment": "MCP server reference for the PagerDuty connector. Wraps PagerDuty's MCP server. The API key is service-scoped at install time; integration events use a separate routing key. Capability plugins (release-operate primarily) call typed tools to page on-call rotations and to trigger/resolve incidents.",
+  "mcpServers": {
+    "pagerduty": {
+      "command": "npx",
+      "args": ["-y", "@pagerduty/mcp-server"],
+      "env": {
+        "PAGERDUTY_API_KEY":      "${secret:pagerduty-api-key}",
+        "PAGERDUTY_ROUTING_KEY":  "${secret:pagerduty-routing-key}"
+      },
+      "alwaysLoad": false
+    }
+  }
+}
